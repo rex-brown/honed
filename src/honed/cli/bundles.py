@@ -308,7 +308,9 @@ def cmd_export_gold(settings: config.Settings, args: argparse.Namespace) -> int:
         if args.repos:
             wanted = {r.lower() for r in args.repos}
             keys = [k for k in keys if k.repo.lower() in wanted]
-        result = gold_export.martian(store, store, keys, removed, TextPolicy(TextOptions(), report))
+        result = gold_export.martian(
+            store, store, keys, removed, TextPolicy(TextOptions(), report), important_only=args.important_only
+        )
     except ValueError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

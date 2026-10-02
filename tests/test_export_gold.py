@@ -121,6 +121,49 @@ def test_the_cli_writes_one_file_per_repo(tmp_path, capsys):
     assert (tmp_path / "exports" / "martian" / "o__r.json").exists()
 
 
+def test_important_only_exports_only_important_issues(tmp_path):
+    store = build(tmp_path)
+    store.save_gold(
+        GoldSet(
+            "o/r",
+            6,
+            HEAD,
+            (
+                replace(GOLD, id="o/r#6:t1", severity=Severity.IMPORTANT, description="important defect"),
+                replace(GOLD, id="o/r#6:t2", severity=Severity.NIT, category="style", description="style nit"),
+            ),
+        )
+    )
+    item = store.get_pr(PRKey("o/r", 1))
+    pr6 = replace(item, pr=replace(item.pr, number=6))
+    store.upsert_pr(pr6)
+
+    keys = store.pr_keys()
+    result = gold_export.martian(
+        store, store, keys, Removals(), TextPolicy(TextOptions(), ExportReport()), important_only=True
+    )
+    assert list(result.files) == ["o__r.json"]
+    (entries,) = result.files.values()
+    assert_martian_shape(entries)
+    assert [e["url"] for e in entries] == ["https://github.com/o/r/pull/1", "https://github.com/o/r/pull/6"]
+    assert entries[0]["comments"] == [{"comment": GOLD.description, "severity": "High", "category": "bug"}]
+    assert entries[1]["comments"] == [{"comment": "important defect", "severity": "High", "category": "bug"}]
+    assert (result.prs, result.issues, result.clean, result.no_gold) == (2, 2, 2, 1)
+    store.close()
+
+
+def test_cli_important_only_exports_only_important_issues(tmp_path, capsys):
+    store = build(tmp_path)
+    store.close()
+    (tmp_path / STORE).write_bytes((tmp_path / "db.sqlite").read_bytes())
+    config = ["--config", str(ROOT / "honed.toml"), "--data-dir", str(tmp_path)]
+    assert cli.main([*config, "export-gold", "--important-only", "--out", str(tmp_path / "martian")]) == 0
+    assert "1 PRs, 1 golden comments" in capsys.readouterr().out
+    entries = json.loads((tmp_path / "martian" / "o__r.json").read_text())
+    assert [e["url"] for e in entries] == ["https://github.com/o/r/pull/1"]
+    assert entries[0]["comments"] == [{"comment": GOLD.description, "severity": "High", "category": "bug"}]
+
+
 @pytest.mark.parametrize("name", ["cal_dot_com", "discourse", "grafana", "keycloak", "sentry"])
 def test_our_shape_is_a_subset_of_martians_own_golden_files(name):
     """Against the downloaded golden files (`honed import-benchmark martian --fetch`), when they are here."""

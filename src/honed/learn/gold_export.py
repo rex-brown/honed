@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from honed.core import removals
 from honed.core.benchmarks import martian_entry
 from honed.core.removals import Removals
-from honed.core.types import PRKey, PRSource
+from honed.core.types import PRKey, PRSource, Severity
 from honed.learn.bundle_text import TextPolicy, pr_url
 from honed.ports.store import LabelStore, Store
 
@@ -35,7 +35,7 @@ def file_name(repo: str) -> str:
 
 
 def martian(store: Store, labels: LabelStore, keys: Sequence[PRKey], removed: Removals,
-            text: TextPolicy) -> GoldExport:  # fmt: skip
+            text: TextPolicy, important_only: bool = False) -> GoldExport:  # fmt: skip
     out = GoldExport()
     for key in sorted(keys, key=lambda k: (k.repo, k.number)):
         if removed.removes_pr(key):
@@ -52,7 +52,8 @@ def martian(store: Store, labels: LabelStore, keys: Sequence[PRKey], removed: Re
         gold, gone = removals.filter_gold(gold, dropped)
         out.removed += gone
         gold = text.gold(gold)
-        entry = martian_entry(text.scrub(item.pr.title, f"{key} title"), pr_url(item.pr), gold.issues)
+        issues = tuple(g for g in gold.issues if g.severity is Severity.IMPORTANT) if important_only else gold.issues
+        entry = martian_entry(text.scrub(item.pr.title, f"{key} title"), pr_url(item.pr), issues)
         if not entry["comments"]:
             out.clean += 1
             continue
