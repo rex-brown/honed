@@ -1,0 +1,32 @@
+{
+  "repo": "honed-fixtures/inventory",
+  "number": 1,
+  "base_commit": "5b1e7c0d2a9f4e6b8c3d1a0f9e8d7c6b5a4f3e2d",
+  "head_commit": "c4f2a8e1b7d3960f5e2c8a4b1d7f3e9a6c2b8d40",
+  "changed_paths": [
+    "inventory/pages.py"
+  ],
+  "files": [
+    {
+      "path": "inventory/pages.py",
+      "commit": "c4f2a8e1b7d3960f5e2c8a4b1d7f3e9a6c2b8d40",
+      "role": "changed",
+      "reason": "changed by the PR, at head",
+      "text": "\"\"\"Pagination helpers for the inventory listing.\"\"\"\n\n\ndef page_count(total: int, size: int) -> int:\n    \"\"\"How many pages `total` items fill, `size` per page.\"\"\"\n    return (total + size - 1) // size\n\n\ndef page(items: list[str], number: int, size: int) -> list[str]:\n    \"\"\"The items on page `number` (pages are numbered from 1), `size` per page.\"\"\"\n    start = number * size\n    return items[start : start + size]\n"
+    },
+    {
+      "path": "inventory/pages.py",
+      "commit": "5b1e7c0d2a9f4e6b8c3d1a0f9e8d7c6b5a4f3e2d",
+      "role": "changed",
+      "reason": "changed by the PR, before it",
+      "text": "\"\"\"Pagination helpers for the inventory listing.\"\"\"\n\n\ndef page_count(total: int, size: int) -> int:\n    \"\"\"How many pages `total` items fill, `size` per page.\"\"\"\n    return (total + size - 1) // size\n"
+    },
+    {
+      "path": "tests/test_pages.py",
+      "commit": "c4f2a8e1b7d3960f5e2c8a4b1d7f3e9a6c2b8d40",
+      "role": "test",
+      "reason": "the module's tests",
+      "text": "from inventory.pages import page_count\n\n\ndef test_page_count_rounds_up():\n    assert page_count(5, 2) == 3\n"
+    }
+  ]
+}

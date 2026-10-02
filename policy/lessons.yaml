@@ -1,0 +1,168 @@
+# Seed lessons (ARCHITECTURE.md section 3), adapted from pstack by Lauren Tan
+# (https://github.com/cursor/plugins/tree/main/pstack, commit 69cf06fa253b): skills/poteto-mode/references/bugbot-triage.md,
+# skills/interrogate/references/code-quality-review.md, skills/typescript-best-practices/SKILL.md,
+# skills/principle-test-behavior-not-implementation/SKILL.md and agents/comment-sicko.md. MIT License; see
+# THIRD_PARTY_NOTICES.md.
+#
+# Schema: id, kind (prompt | check), scope (languages, paths globs with "!" excludes, repos), categories, text,
+# applies_when, skip_when and do_not_skip_when (a lesson with skip_when suppresses findings: it must name its
+# categories, none of them in honed.toml [safety] high_risk_categories, and state do_not_skip_when), example_signal,
+# evidence (sources), confidence (candidate -> recurring -> strong, or retired), stats, and for a check lesson a
+# declarative `check` (engine: added_lines_regex | structural_pattern | threshold | finding_text; action: flag |
+# suppress). Prompt lessons that skip reach the lead reviewer; the others reach the panel. Every seed starts as
+# `candidate`.
+
+lessons:
+  # ---- prompt lessons: pstack's review-automation triage patterns ------------------------------------------------
+
+  - id: intentional-visual-change
+    kind: prompt
+    scope: {languages: [typescript]}
+    categories: [design, style]
+    text: A finding that only restates that a shared visual default changed is noise when the change makes that change explicit.
+    applies_when: A finding objects to a changed visual or design-system default.
+    skip_when: The description, screenshots or nearby code make the visual change explicit.
+    do_not_skip_when: It concerns accessibility (focus, keyboard navigation, contrast) or a component API contract the change didn't mean to alter.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Intentional UI or design-system visual changes"]
+    confidence: candidate
+
+  - id: stack-local-usage
+    kind: prompt
+    categories: [design]
+    text: An export, helper or file flagged as unused may be used by a later pull request in a stack.
+    applies_when: A finding says an export, component, helper or file is never used.
+    skip_when: The description or earlier discussion names the later change in the stack that uses it.
+    do_not_skip_when: The change isn't in a stack, the symbol is public API, or the later use can't be confirmed.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Upstack or stack-local usage"]
+    confidence: candidate
+
+  - id: temporary-parallel-duplication
+    kind: prompt
+    categories: [design]
+    text: Small, deliberate duplication keeping a new path parallel to an old one being replaced is not a design finding.
+    applies_when: A finding flags duplicated logic.
+    skip_when: The change says the old path is being deleted or replaced, and the duplicate is small and local.
+    do_not_skip_when: The duplicate touches security, billing, data access or API behavior, or a shared abstraction would clearly reduce risk.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Temporary duplication during parallel implementation"]
+    confidence: candidate
+
+  - id: invariant-already-enforced
+    kind: prompt
+    categories: [correctness, error handling, types/contracts]
+    text: A warning is not a finding when a framework contract, type invariant or single source of truth shown already guarantees the property.
+    applies_when: A finding asks for a check, bound or null guard.
+    skip_when: Code shown enforces the guarantee, and the checked and used values share one source.
+    do_not_skip_when: The invariant is assumed, not enforced, depends on timing, or crosses an async or state boundary where values can diverge.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Existing framework or component invariant covers the warning"]
+    confidence: candidate
+
+  - id: owner-declared-follow-up
+    kind: prompt
+    categories: [design, tests, documentation, comments, style]
+    text: A low-risk point the owner already accepted as a follow-up doesn't need repeating.
+    applies_when: A finding repeats a point from the earlier discussion.
+    skip_when: The owner called it a known follow-up there, and the change doesn't make the behavior worse.
+    do_not_skip_when: It is important product behavior, or deferring it would merge a new regression.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Owner-declared follow-up or deferred cleanup"]
+    confidence: candidate
+
+  - id: narrow-error-condition
+    kind: prompt
+    categories: [error handling]
+    text: A deliberately narrow error condition often encodes a real distinction that a catch-all would mask.
+    applies_when: A finding asks to widen a specific error code, errno or status check.
+    skip_when: The condition separates "a dependency is missing" from "it ran and failed" (a fallback gated on ENOENT), so a catch-all retry would report the fallback's error instead.
+    do_not_skip_when: It misses a case of the same kind (EACCES for an unusable binary), the unhandled path loses data or leaves partial state, or the original error would still surface.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Widening a deliberately narrow error condition would mask the real error"]
+    confidence: candidate
+
+  - id: manual-native-behavior
+    kind: prompt
+    scope: {languages: [typescript]}
+    categories: [correctness]
+    text: A hand-written replacement for native browser behavior (scripted sticky positioning, forwarded wheel or touch events, occlusion masks) often hides logic bugs; check it closely.
+    applies_when: The change reimplements a native browser behavior by hand.
+    example_signal: '"overlay blocks wheel scroll", "ignores deltaMode"'
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Manual reimplementations of native browser behavior"]
+    confidence: candidate
+
+  - id: confirm-missing-guard
+    kind: prompt
+    categories: [security, auth]
+    text: Before reporting a missing authorization or validation check, confirm no earlier guard on the call path covers it; report it when the guard runs after the side effect or is a no-op for that caller.
+    applies_when: A finding says an authorization, permission or input-validation check is missing.
+    evidence: ["pstack skills/poteto-mode/references/bugbot-triage.md: Stale security-review finding already fixed later in the same PR"]
+    confidence: candidate
+
+  # ---- check lessons: declarative rules run by the fixed engine in review/checks.py ----------------------------
+
+  - id: file-over-1000-lines
+    kind: check
+    categories: [design]
+    text: This change pushes the file past 1,000 lines. Split it into focused modules.
+    evidence: ["pstack skills/interrogate/references/code-quality-review.md: dimension 1 and the approval bar"]
+    confidence: candidate
+    check: {engine: threshold, threshold: 1000, action: flag, severity: important, category: design}
+
+  - id: new-lint-suppression
+    kind: check
+    categories: [comments]
+    text: The change adds a lint or type-checker suppression. Fix the flagged code, or say why the rule is wrong here.
+    evidence: ["pstack agents/comment-sicko.md: suppressions", "pstack skills/no-comments/SKILL.md"]
+    confidence: candidate
+    check:
+      engine: added_lines_regex
+      pattern: '(@ts-ignore|@ts-expect-error|@ts-nocheck|eslint-disable|\bNOLINT|#\s*type:\s*ignore|#\s*noqa\b|#\s*pylint:\s*disable|#\s*pragma:\s*no\s*cover)'
+      action: flag
+      severity: nit
+      category: comments
+
+  - id: unvalidated-cast-of-external-data
+    kind: check
+    scope:
+      languages: [typescript]
+      paths: ['**/*.ts', '**/*.tsx', '!**/*.test.*', '!**/*.spec.*', '!**/__tests__/**', '!**/test/**', '!**/tests/**']
+    categories: [types/contracts]
+    text: The change casts data that crossed a boundary with `as` instead of parsing it. Parse it into the domain type (a schema or a field-checking type guard) and drop the cast.
+    evidence: ["pstack skills/typescript-best-practices/SKILL.md: No as casts; unknown over any"]
+    confidence: candidate
+    check:
+      engine: added_lines_regex
+      pattern: '((JSON\.parse\(|\.json\(\)|\bres(ponse)?\.data\b|\breq(uest)?\.body\b|\bprocess\.env\b|\bevent\.data\b|\bgetItem\()[^;]*\)?\s+as\s+(?!const\b)[A-Za-z_{\[]|\bas\s+unknown\s+as\b)'
+      exclude: '^\s*(//|/\*|\*)'
+      action: flag
+      severity: nit
+      category: types/contracts
+
+  - id: any-in-new-code
+    kind: check
+    scope:
+      languages: [typescript]
+      paths: ['**/*.ts', '**/*.tsx', '!**/*.d.ts', '!**/*.test.*', '!**/*.spec.*', '!**/__tests__/**']
+    categories: [types/contracts]
+    text: The change adds `any`. Use `unknown` and narrow it, or name the real type.
+    evidence: ["pstack skills/typescript-best-practices/SKILL.md: unknown over any"]
+    confidence: candidate
+    check:
+      engine: added_lines_regex
+      pattern: '(:\s*any\b(?![\w-])|<any>|\bas\s+any\b|\bany\[\]|Array<any>|Record<[^>]*,\s*any>)'
+      exclude: '^\s*(//|/\*|\*)'
+      action: flag
+      severity: nit
+      category: types/contracts
+
+  - id: weak-assertions-only
+    kind: check
+    scope:
+      paths: ['**/test_*.py', '**/*_test.py', '**/tests/**', '**/test/**', '**/__tests__/**', '**/*.test.*', '**/*.spec.*']
+    categories: [tests]
+    text: Every assertion the change adds to the file is weak (defined, truthy, called, no throw), so the tests would pass if the code returned `undefined`. Assert the literal result the caller observes.
+    evidence: ["pstack skills/principle-test-behavior-not-implementation/SKILL.md: weak or no assertion"]
+    confidence: candidate
+    check:
+      engine: structural_pattern
+      select: '(\bexpect\(|^\s*assert\b|\bself\.assert\w*\(|\bassert[A-Z]\w*\()'
+      pattern: '(\.(toBeDefined|toBeTruthy|toBeFalsy|toHaveBeenCalled)\(\)|\.not\.(toBeNull|toBeUndefined|toThrow)\(\)|\.toBeInstanceOf\(|\.toBeGreaterThan\(0\)|^\s*assert\s+[\w.\[\]()]+\s*$|^\s*assert\s+[\w.\[\]()]+\s+is\s+not\s+None\s*$|assertIsNotNone\(|\bassertTrue\([\w.]+\)\s*$|^\s*assert\s+len\(.+\)\s*>\s*0\s*$)'
+      action: flag
+      severity: nit
+      category: tests

@@ -1,0 +1,479 @@
+# honed: the single configuration file. Read only through `honed.config`.
+# Paths are relative to this file's directory.
+
+# true swaps every adapter to its local or replay implementation; online-only commands refuse to run.
+offline = false
+
+[paths]
+data = "data"
+sqlite = "data/prreview.sqlite"   # the store: keeps its pre-rename file name, so data/ and data-dev/ open as they are
+blobs = "data/blobs"          # content-addressed, zlib-compressed large text (patches, hunks, pack files)
+clones = "data/clones"        # bare partial clones used to build context packs
+cache = "data/cache"
+llm_status = "data/llm_status.json"      # heartbeat, rewritten after every live model call
+human_labels = "yardstick/human_labels"  # yardstick, committed: the blind sample and people's labels-<username>.json
+human_labels_page = "tools/human-labels/index.html"  # the labeling page `honed human-labels serve` serves
+reports = "data/reports"                 # evaluation reports (`honed eval`), one JSON file per run
+models = "data/models"                   # downloaded local models (`honed fetch-local-model`), one directory each
+benchmarks = "data/benchmarks"           # downloaded public benchmarks (`honed import-benchmark --fetch`)
+yardstick_prompts = "yardstick/prompts"  # judge prompts: outside policy/, so the improve loop can't edit its judge
+policy = "policy"                        # the incumbent reviewer policy: the default `--policy`
+removals_file = "yardstick/removals.json"   # PRs and comments every bundle export leaves out (DATASET.md, Removal)
+exports = "data/exports"                 # `honed export-gold` output, one directory per format
+# `honed --data-dir PATH` moves every entry under `data` above to the same place under PATH, for a run on a copy.
+
+# ---------------------------------------------------------------------------------------------------------------
+# Training corpus (ARCHITECTURE.md section 11). PRs are sampled per language group in proportion to
+# `metrics.language_weights` (one source of truth for the weights), spread evenly across the repos of each group.
+# ---------------------------------------------------------------------------------------------------------------
+[corpus]
+# Language-group keys must match the keys of `metrics.language_weights`. `github_languages` places a repo that is in
+# no group (an AI-feedback-only repo) by its GitHub primary language; the group with an empty list is the fallback.
+[[corpus.groups]]
+key = "typescript"
+label = "TypeScript/JS"
+github_languages = ["TypeScript", "JavaScript"]
+repos = [
+  "elastic/kibana",
+  "WordPress/gutenberg",
+  "facebook/lexical",
+  "open-telemetry/opentelemetry-js",
+  "typescript-eslint/typescript-eslint",
+  "cloudflare/workers-sdk",
+  "microsoft/fluentui",
+  "microsoft/rushstack",
+]
+
+[[corpus.groups]]
+key = "cpp"
+label = "C/C++"
+github_languages = ["C", "C++"]
+repos = [
+  "scylladb/scylladb",
+  "open-telemetry/opentelemetry-cpp",
+  "ceph/ceph",
+  "zephyrproject-rtos/zephyr",
+  "apache/arrow",
+  "carbon-language/carbon-lang",
+  "NVIDIA/cccl",
+]
+
+[[corpus.groups]]
+key = "python"
+label = "Python"
+github_languages = ["Python"]
+repos = [
+  "scikit-learn/scikit-learn",
+  "apache/airflow",
+  "scipy/scipy",
+  "django/django",
+  "zulip/zulip",
+]
+
+[[corpus.groups]]
+key = "other"
+label = "Other"
+github_languages = []
+repos = [
+  "grpc/grpc-go",
+  "kubernetes/kubernetes",
+  "openjdk/jdk",
+  "dotnet/runtime",
+  "rust-lang/rust",
+]
+
+# AI-feedback corpus: only AI-bot threads and what happened to them.
+[corpus.ai_feedback]
+repos = [
+  "elastic/kibana",
+  "cloudflare/workers-sdk",
+  "prisma/orm",
+  "backstage/backstage",
+  "bitwarden/clients",
+  "microsoft/onnxruntime",
+  "NVIDIA/cccl",
+  "systemd/systemd",
+  "scylladb/scylladb",
+  "dotnet/runtime",
+  "vitessio/vitess",
+]
+
+# Never harvested, even when named on the command line. Keyed by reason; matching is case-insensitive and follows
+# the renames in `core.filters.RENAMED` (facebook/react is react/react).
+[corpus.exclude]
+# Martian Code Review Bench (held-out test set), with the copies its replicated PRs live in.
+martian = [
+  "getsentry/sentry",
+  "grafana/grafana",
+  "calcom/cal.com",
+  "discourse/discourse",
+  "keycloak/keycloak",
+  "ai-code-review-evaluation/discourse-graphite",
+  "ai-code-review-evaluation/sentry-greptile",
+  "ai-code-review-evaluation/keycloak-greptile",
+]
+# AACR-Bench (held-out test set): every repo in the `githubPrUrl` of
+# https://raw.githubusercontent.com/alibaba/aacr-bench/HEAD/dataset/positive_samples.json (fetched 2026-09-29, 50 repos).
+aacr_bench = [
+  "alibaba/spring-ai-alibaba",
+  "appwrite/appwrite",
+  "astral-sh/uv",
+  "bitcoin/bitcoin",
+  "bluewave-labs/Checkmate",
+  "browser-use/browser-use",
+  "CherryHQ/cherry-studio",
+  "ClickHouse/ClickHouse",
+  "cline/cline",
+  "comfyanonymous/ComfyUI",
+  "dbeaver/dbeaver",
+  "dotnet/aspnetcore",
+  "elastic/elasticsearch",
+  "electron/electron",
+  "facebook/react",
+  "filamentphp/filament",
+  "FreeCAD/FreeCAD",
+  "gofr-dev/gofr",
+  "google-gemini/gemini-cli",
+  "immich-app/immich",
+  "infiniflow/ragflow",
+  "juspay/hyperswitch",
+  "kestra-io/kestra",
+  "keycloak/keycloak",
+  "langflow-ai/langflow",
+  "laravel/framework",
+  "libsdl-org/SDL",
+  "linera-io/linera-protocol",
+  "lvgl/lvgl",
+  "microsoft/PowerToys",
+  "microsoft/semantic-kernel",
+  "microsoft/typescript-go",
+  "mpv-player/mpv",
+  "mrdoob/three.js",
+  "mudler/LocalAI",
+  "n8n-io/n8n",
+  "nextcloud/server",
+  "nodejs/node",
+  "ollama/ollama",
+  "openai/codex",
+  "opencv/opencv",
+  "PowerShell/PowerShell",
+  "ppy/osu",
+  "sveltejs/svelte",
+  "symfony/symfony",
+  "timescale/timescaledb",
+  "unionlabs/union",
+  "valkey-io/valkey",
+  "vllm-project/vllm",
+  "wavetermdev/waveterm",
+]
+# Near-duplicates of a held-out repo: Valkey is a fork of Redis.
+near_duplicate = ["redis/redis"]
+# Review happens off GitHub (research/repo-selection/rank_repos.py `OFF_GITHUB_REVIEW`).
+off_github_review = [
+  "cockroachdb/cockroach",
+  "react/react-native",
+  "facebook/rocksdb",
+  "protocolbuffers/protobuf",
+]
+
+# ---------------------------------------------------------------------------------------------------------------
+# Scoring and gates (METRICS.md section 8). Outside policy/: only a human changes these.
+# ---------------------------------------------------------------------------------------------------------------
+[metrics]
+beta = 0.5
+valid_unlabeled_credit = 0.5   # c_vu: credit for a valid unlabeled finding claimed Important, only when the judge
+                               # rates it Important too and the verifier traced it (evidence level vu_min_evidence+)
+max_neutral_vu_per_round = 3   # valid unlabeled Nits per PR-round that are neutral; each one beyond counts as an FP
+vu_min_evidence = 3            # the verifier's evidence level a valid unlabeled Important needs to earn c_vu
+
+[metrics.severity_weights]
+important = 3.0
+pre_existing = 1.0
+nit = 0.5
+
+[metrics.language_weights]
+typescript = 0.45
+cpp = 0.25
+python = 0.20
+other = 0.10
+
+[metrics.gold_conf]
+human_fixed = 1.0
+applied_suggestion = 1.0
+human_open_at_merge = 0.8
+escaped_defect = 0.8
+judge_only = 0.6
+benchmark = 1.0                # a public benchmark's expert-verified golden comment (test split only)
+
+[gate]
+# min_gain = max(min_gain_floor, min_gain_noise_multiplier * sigma), sigma measured per METRICS.md section 6.
+min_gain_floor = 0.01
+min_gain_noise_multiplier = 2.0
+language_tolerance = 0.02
+important_recall_tolerance = 0.02
+min_prs_per_language = 30
+clean_pr_alarm_rise_pp = 2.0
+cost_cap_usd = 0.80            # mean list-price cost per review (the phase 3 baseline measured $0.41)
+cost_growth_max = 1.10
+latency_p90_max_s = 600
+policy_max_lessons = 60
+policy_max_prompt_tokens = 6000
+bootstrap_resamples = 1000
+ci_level = 0.95                # METRICS.md section 3: the 95% paired-bootstrap interval
+well_formed_min = 0.99         # METRICS.md section 3, rule 8: findings that parse, and Important and Nit findings
+                               # that anchor to a changed line (Pre-existing findings are outside the diff by design)
+removal_min_exposure = 5       # rule 1's pure-removal exception: the removed lesson or check fired on this many
+                               # PR-rounds of the gate split, else the removal is `unmeasured`
+screen_fraction = 0.2          # screening: this fixed, language-stratified share of the gate split is replayed first;
+                               # a candidate whose delta-S there isn't above 0 is `screened_out`
+
+[prod]
+rollback_window_findings = 100
+rollback_window_days = 21
+rollback_acted_drop_pp = 10.0
+rollback_thumbsdown_rise_pp = 5.0
+
+[judge]
+min_accuracy = 0.85
+min_kappa = 0.6
+min_consistency = 0.90
+matcher_min_f1 = 0.90
+cross_family_alarm_kappa = 0.5
+local_min_human_accuracy = 0.75   # the cross-family alarm counts only once the local judge agrees with the human
+                                  # labels this often; until then it is report-only
+# Judge audit sample sizes (METRICS.md section 5; `honed audit-judge`).
+audit_items = 40               # human-strong items judged for accuracy and Cohen's kappa
+consistency_items = 10         # items judged `consistency_repeats` times each
+consistency_repeats = 3
+human_label_items = 50         # review comments in the blind human-labeling sample (`honed export-audit-sample`)
+
+[lessons]
+min_prs = 2                    # evidence from at least this many PRs ...
+min_authors = 2                # ... by at least this many authors
+recurring_min_fires = 5
+strong_min_fires = 20
+strong_min_repos = 2
+
+[review]
+act_on_flag = 5                # more "act on" findings on one PR means the verifier isn't filtering hard enough
+
+[safety]
+# Findings in these categories are never suppressed or downgraded by a lesson (outside policy/, so the loop can't
+# change it).
+high_risk_categories = [
+  "security", "privacy", "auth", "billing", "data retention", "migrations/schema", "idempotency", "concurrency",
+]
+
+# ---------------------------------------------------------------------------------------------------------------
+# Models per stage (ARCHITECTURE.md section 9). Defaults; a policy (policy/config.toml) may choose another model for
+# a tunable stage, from its `allowed` list.
+# ---------------------------------------------------------------------------------------------------------------
+[models.intent]
+online = "claude-sonnet-5-5"
+offline = "local"
+tunable = true
+allowed = ["claude-sonnet-5-5", "claude-opus-5-5"]
+
+[models.finders]
+online = "claude-sonnet-5-5"
+offline = "local"
+tunable = true
+allowed = ["claude-sonnet-5-5", "claude-opus-5-5"]
+
+[models.verifier]
+online = "claude-opus-5-5"
+offline = "local"
+tunable = true
+allowed = ["claude-sonnet-5-5", "claude-opus-5-5"]
+
+[models.proposer]
+online = "claude-opus-5-5"
+offline = "local"
+tunable = false
+effort = "medium"
+
+[models.judge]
+online = "claude-fable-5-1"
+offline = "local"              # offline, the local model judges both sides of a comparison (gold labels stay Fable's)
+tunable = false
+effort = "medium"              # part of the fixed yardstick, and of every judge call's cache key
+
+# ---------------------------------------------------------------------------------------------------------------
+# LLM backends (ARCHITECTURE.md section 8).
+# ---------------------------------------------------------------------------------------------------------------
+[llm]
+backend = "claude_code"        # claude_code | anthropic | replay. offline = true: every stage on [llm.local], the judge too
+                               # (its own cached answers first); gold labels from Fable's cache (ARCHITECTURE.md 8)
+concurrency = 2                # model calls in flight at once
+run_call_cap = 10000             # live model calls one run may make; `--max-calls` lowers it
+
+# Headless Claude Code (`claude -p`) on the Claude subscription. The subscription's token is never read by
+# honed in safe_mode, and never sent to the Messages API. Usage credits (overage) are never enabled.
+[llm.claude_code]
+binary = "claude"
+isolation = "safe_mode"        # safe_mode | config_dir; what each one leaks: ARCHITECTURE.md section 8
+oauth_token_env = "CLAUDE_CODE_OAUTH_TOKEN"            # config_dir: the `claude setup-token` token ...
+keychain_service = ""          # ... else this macOS Keychain generic-password item, when named (optional)
+timeout_s = 600
+max_retries = 2                # our retries of transient failures; limits and network failures are never retried
+backoff_s = 10.0
+cli_max_retries = 2            # CLAUDE_CODE_MAX_RETRIES: Claude Code's own API retries, low so outages fail fast
+stop_at_utilization = 0.80     # stop when the 5-hour plan window (or any but the weekly ones) is this full
+stop_at_weekly_utilization = 0.85   # stop when a weekly window (`seven_day`, `seven_day_opus`, ...) is this full
+require_usage_signal = true    # stop when a successful call reports no plan-usage signal (fail closed)
+# Status `allowed_warning` is advisory (recorded in data/llm_status.json as `warning`), never a stop by itself.
+# `--wait-for-reset`: a stop for a plan window alone (a threshold, status `rejected`, a limit error with a reset time)
+# sleeps until that window resets plus this margin, then resumes; any other stop still ends the run.
+reset_wait_margin_s = 120
+wait_heartbeat_s = 60          # rewrite data/llm_status.json (with `waiting_until`) this often while waiting
+max_wait_s = 21600             # never wait longer than this (6 hours): a reset further away ends the run (exit 3)
+
+# The Messages API with an API key (`ANTHROPIC_API_KEY`; the backend refuses to start without one and never uses a
+# subscription token). For scale, Batches API pricing, and any use on behalf of others (ARCHITECTURE.md section 8).
+[llm.anthropic]
+run_budget_usd = 25.0          # the run's dollar ceiling: a call (or batch) whose worst case doesn't fit is refused
+use_batches = false            # label, audit-judge and eval send their calls as Message Batches, at half price
+fallbacks = true               # server-side refusal fallbacks (beta server-side-fallback-2026-07-01) on live calls
+batch_discount = 0.5           # Message Batches cost this fraction of list price
+timeout_s = 900
+max_retries = 2                # the SDK's retries of rate limits, overloads, server and connection errors
+batch_poll_s = 30              # poll a batch this often (its status goes to data/llm_status.json)
+batch_max_wait_s = 86400       # cancel a batch still running after this; its unfinished requests fail
+
+# List prices, USD per million tokens (2026-09-25); cache_write is the 5-minute-TTL price (1.25 x input). Models the
+# server-side fallbacks may route to are listed so their answers are priced too; an unlisted model is charged the
+# table's highest prices.
+[llm.anthropic.prices]
+"claude-fable-5-1" = { input = 10.0, output = 50.0, cache_write = 12.5, cache_read = 0.25 }
+"claude-opus-5-5" = { input = 4.0, output = 20.0, cache_write = 5.0, cache_read = 0.20 }
+"claude-sonnet-5-5" = { input = 2.0, output = 10.0, cache_write = 2.5, cache_read = 0.20 }
+"claude-opus-5" = { input = 5.0, output = 25.0, cache_write = 6.25, cache_read = 0.50 }
+"claude-opus-4-8" = { input = 5.0, output = 25.0, cache_write = 6.25, cache_read = 0.50 }
+"claude-sonnet-5" = { input = 2.0, output = 10.0, cache_write = 2.5, cache_read = 0.20 }
+
+# The local model (ARCHITECTURE.md sections 8, 9 and 13): MLX-LM in-process on Apple Silicon (`uv sync --extra local`,
+# then `honed fetch-local-model`). The offline backend for every stage, and the cross-family judge (METRICS.md
+# section 5). Chosen 2026-09-30: Qwen3.8-27B (Alibaba Qwen, not Claude's family), 4-bit, 16 GB of weights.
+[llm.local]
+model = "mlx-community/Qwen3.8-27B-4bit"   # Hugging Face repo id; stored under [paths] models
+max_context = 32768            # prompt plus answer tokens per call; a longer prompt fails the call
+max_tokens = 8192              # answer tokens per attempt, at most (a verifier answer for 10 findings runs to ~4k)
+temperature = 0.0              # sample 0: greedy
+sample_temperature = 0.7       # samples > 0 (consistency audits): seeded by the sample index
+top_p = 0.95
+parse_retries = 2              # re-asks after an answer that isn't the requested JSON
+
+# ---------------------------------------------------------------------------------------------------------------
+# Harvesting (ARCHITECTURE.md sections 5, 8 and 11).
+# ---------------------------------------------------------------------------------------------------------------
+[harvest]
+target_prs = 1000              # human-review corpus: reviewed PRs, split by metrics.language_weights
+ai_feedback_target_prs = 220   # AI-feedback corpus, spread evenly across [corpus.ai_feedback] repos
+window = "2026-01-01..2026-06-30"   # PR creation dates; ends three months ago so slow, heavily reviewed PRs merged
+window_slices = 6              # quotas are spread evenly over equal slices of the window, for time-ordered splits
+search_page_size = 25
+# Lines of slack around a thread's flagged lines when deciding whether a later commit changed them.
+fixed_line_slack = 0
+keep_clones = true             # keep each repo's bare partial clone after its packs are written
+# Approval-only PRs (a human review, no human inline thread) are the clean-PR set: they don't count toward a
+# repo's quota and are kept up to this share of it, on top (ARCHITECTURE.md section 11).
+approval_only_share = 0.25
+# Bug-targeted sampling (ARCHITECTURE.md section 11): this share of each human-corpus repo's quota comes from landed
+# PRs where a human submitted a CHANGES_REQUESTED review, listed with their own cursors; the rest is sampled as
+# before. A slice whose listing runs out of such PRs hands the shortfall to the general sample.
+bug_targeted_share = 0.30
+
+# Context-pack budgets (ARCHITECTURE.md section 8).
+[harvest.pack]
+max_files = 60                 # all files in a pack, base and head versions counted separately
+max_bytes = 3_000_000
+max_file_bytes = 400_000       # larger files (generated, vendored, fixtures) are skipped and recorded as skipped
+max_symbols = 24               # symbols taken from the diff and searched for referencing files
+max_files_per_symbol = 40      # a symbol found in more files is too common to rank on and is dropped
+max_referencing = 30
+max_tests = 10
+# git grep scope. A tree up to grep_full_tree_max_files is searched whole; a bigger tree is searched only in the
+# changed files' directories, widened toward the root while the scope stays within grep_scope_max_files.
+grep_full_tree_max_files = 25000
+grep_scope_max_files = 4000
+tree_listing = true            # store the head commit's file list, so offline list_files works outside the pack
+
+# ---------------------------------------------------------------------------------------------------------------
+# Labeling (ARCHITECTURE.md section 5): judge inputs and the category vocabulary. Outside policy/.
+# ---------------------------------------------------------------------------------------------------------------
+[label]
+region_context_lines = 12      # lines of code shown on each side of a thread's flagged lines
+max_tokens = 16000             # output-token hint per judge call, thinking included
+gold_max_tokens = 32000        # the per-PR gold-issue call answers for many threads at once
+# Every finding and gold issue gets one of these. Must include every [safety] high_risk_categories entry.
+categories = [
+  "correctness", "error handling", "types/contracts", "memory/undefined behavior", "performance", "compatibility",
+  "tests", "design", "documentation", "comments", "style",
+  "security", "privacy", "auth", "billing", "data retention", "migrations/schema", "idempotency", "concurrency",
+  "other",
+]
+
+# ---------------------------------------------------------------------------------------------------------------
+# Evaluation (ARCHITECTURE.md section 6, METRICS.md). Outside policy/: only a human changes these.
+# ---------------------------------------------------------------------------------------------------------------
+[eval]
+max_rounds = 2                 # review rounds replayed per PR: the first, then the ones with the most human threads;
+                               # the round packs (`honed pack --rounds 2`) and every baseline use 2
+split_fractions = { train = 0.6, validation = 0.2, test = 0.2 }   # time-ordered by PR creation, per language;
+                               # validation holds at least [gate] min_prs_per_language PRs per language (from train)
+dev_split = "dev"              # a split holding every eligible PR, while the dataset is too small to split
+test_private_share = 0.5       # `honed splits --assign`: this share of each language's test PRs is test-private,
+                               # the maintainers' holdout (left out of `bundle export`); the rest test-public
+include_escaped_defects = false   # add mined escaped-defect gold issues (`honed mine-defects`) to the rounds
+code_excerpt_lines = 3         # lines of code around each finding and gold issue shown to the judge
+bootstrap_seed = 20260930
+max_findings_judged = 20       # findings per PR-round sent to the judge (posted first, then dismissed)
+
+# Escaped-defect mining (ARCHITECTURE.md section 5; `honed mine-defects`): later bug-fix PRs blamed back to the
+# corpus PRs that introduced the lines they fix.
+[defects]
+after_days = 90                # fix PRs created up to this many days after the corpus window ends
+fix_title = '(?i)\b(fix(e[sd])?|bug ?fix|regression|crash(es)?|broken|incorrect(ly)?|wrong)\b'
+fix_labels = ["bug", "type: bug", "type:bug", "kind/bug", "bug fix", "bugfix", "regression", "fix"]
+max_fix_lines = 30             # a fix hunk rewriting more old lines than this is a refactor, not a fix
+max_files = 15                 # a fix PR touching more files than this is skipped
+
+# ---------------------------------------------------------------------------------------------------------------
+# The improve loop (ARCHITECTURE.md section 7; `honed improve`). Outside policy/: only a human changes these.
+# ---------------------------------------------------------------------------------------------------------------
+[improve]
+candidates_per_round = 3       # proposals per round, each evaluated on its own against the incumbent
+plateau_rejects = 3            # candidates in a row without a promotion before the loop pivots (and combines near-misses)
+target_s = 0.80                # stop once the incumbent's S reaches this after --min-attempts candidates; never relaxed
+generators = ["lesson_miner", "reflective", "subtractive"]   # the rotation; "combine" joins on a plateau
+feed_split = "train"           # the proposer mines this split's failures (the gate split is --split, default validation)
+feed_sample_rounds = 150       # ... on this many of its PR-rounds: stratified by language, PRs with a gold issue first
+                               # (Important ones at the split's share), redrawn when a promotion changes the incumbent
+max_failure_cases = 25         # of each kind (missed, false positive, valid nit beyond the cap, false dismissal)
+proposer_max_tokens = 32000    # output-token hint per proposer call, thinking included
+
+# ---------------------------------------------------------------------------------------------------------------
+# Promotion (ARCHITECTURE.md section 7). A candidate diff may touch only allowed_paths, and never forbidden_paths
+# (forbidden wins). The yardstick lives outside policy/ so the improve loop can't edit its own judge.
+# ---------------------------------------------------------------------------------------------------------------
+[promote]
+allowed_paths = ["policy/"]
+forbidden_paths = ["yardstick/", "src/", "tests/", "honed.toml", "METRICS.md", "ARCHITECTURE.md"]
+
+# ---------------------------------------------------------------------------------------------------------------
+# The published dataset (DATASET.md; `honed bundle export`). The manifest of every export carries these.
+# ---------------------------------------------------------------------------------------------------------------
+[dataset]
+version = "0.1.0-dev"              # the release; bump the patch level after a removal (DATASET.md, Removal)
+annotations_license = "CC-BY-4.0"   # our annotations (DATA_LICENSE); the code is Apache-2.0, comment text isn't ours
+
+[github]
+max_retries = 5
+backoff_s = 3.0
+graphql_min_remaining = 300    # pause until the rate-limit reset when fewer points remain
+run_point_budget = 1200        # stop a run (resumably) after this many GraphQL points
+threads_page = 50
+comments_page = 10
+reactions_page = 10
+min_page = 5                   # smallest page size when shrinking after GraphQL timeouts
+request_timeout_s = 180

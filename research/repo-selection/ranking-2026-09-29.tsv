@@ -1,0 +1,273 @@
+rank	repo	lang	rigor	merged/yr	cover%	thr/PR	thr_med	revs/PR	outdated%	reply%	discuss%	chars	sugg%	react/100	fpush/PR	ai%	agent_prs	n
+1	grpc/grpc-go	Go	87.5	489	70.6	5.94	3	1.63	86.3	63.0	64.2	120	1.7	18.2	0.75	29.4	0	51
+2	scylladb/scylladb	C++	84.4	1214	75.0	5.17	2.5	2.1	69.0	75.1	79.3	142	0.8	8.0	5.12	31.7	0	60
+3	open-telemetry/opentelemetry-cpp	C++	82.2	590	41.7	2.33	0.0	1.77	76.2	79.6	82.3	140	0.7	30.7	1.42	11.7	0	60
+4	valkey-io/valkey	C	80.3	940	48.3	3.17	0.0	1.95	78.8	28.2	31.8	164	18.8	30.5	1.52	31.7	0	60
+5	bitcoin/bitcoin	C++	79.9	1411	55.0	2.13	1.0	2.37	65.1	59.6	64.5	318.5	24.1	35.3	2.33	0.0	0	60
+6	ceph/ceph	C++	79.9	3943	53.4	3.24	1.0	1.71	73.9	56.4	58.5	117.0	18.6	12.3	4.31	5.2	0	58
+7	redis/redis	C	79.7	618	61.7	4.05	1.0	1.5	72.7	73.1	75.0	105.5	23.5	8.0	0.75	26.7	0	60
+8	kubernetes/kubernetes	Go	79.6	3568	54.2	3.31	1	1.46	69.2	81.0	83.6	127	16.7	13.0	4.68	0.0	0	59
+9	scikit-learn/scikit-learn	Python	77.6	1204	52.0	2.34	1.0	1.94	81.4	28.0	36.6	106	64.0	32.3	0.2	0.0	0	50
+10	nginx/nginx (low vol)	C	76.5	182	42.3	2	0.0	1.42	90.8	43.7	43.7	167	3.4	1.6	2.9	7.7	0	52
+11	zephyrproject-rtos/zephyr	C	75.8	14886	43.3	2.32	0.0	2.95	76.9	61.5	63.6	71	23.8	11.7	3.47	13.3	0	60
+12	openjdk/jdk	Java	75.4	4562	50.9	1.89	1	2.14	71.3	64.8	69.4	109.0	13.0	18.8	0.11	0.0	0	57
+13	apache/airflow	Python	72.8	10712	50.0	1.72	0.5	2.08	64.1	68.0	68.9	146	22.3	23.6	2.17	0.0	0	60
+14	apache/kafka	Java	72.4	2150	50.0	2.32	0.5	1.37	68.7	65.4	67.0	123	3.4	13.0	0.5	15.0	0	60
+15	dotnet/runtime	C#	72.3	6982	50.0	1.95	0.5	1.77	71.8	47.9	53.0	111	19.7	11.5	0.45	65.0	11	60
+16	apache/datafusion	Rust	71.7	3746	50.0	2.87	0.5	1.53	57.8	58.4	61.3	212	2.9	12.1	1.23	1.7	0	60
+17	facebook/lexical	TypeScript	71.1	813	32.2	1.17	0	1.85	78.3	75.4	75.4	160	31.9	2.4	0.71	0.0	0	59
+18	apache/arrow	C++	70.7	1311	40.0	2.2	0.0	1.32	78.4	61.9	64.0	106	22.3	13.7	1.7	33.3	0	60
+19	WordPress/gutenberg	JavaScript	70.1	5990	48.3	1.65	0.0	1.25	72.5	63.7	66.7	131.5	29.4	21.0	0.98	5.0	0	60
+20	carbon-language/carbon-lang	C++	69.8	1331	50.0	1.78	0.5	1.07	70.2	78.9	79.8	152.5	25.4	7.3	1.07	0.0	0	60
+21	scipy/scipy	Python	69.2	1454	47.5	2.22	0	1.42	72.7	43.2	48.9	104	26.6	12.5	1.36	1.7	0	59
+22	tokio-rs/tokio	Rust	69.1	436	51.7	1.57	1.0	1.53	70.2	55.3	58.5	117.0	29.8	10.1	1.42	0.0	0	60
+23	vitessio/vitess	Go	69.1	1479	41.7	1.9	0.0	2.18	51.3	77.3	78.2	255	1.7	5.3	0.92	43.3	0	60
+24	open-telemetry/opentelemetry-js	TypeScript	68.9	739	43.3	1.42	0.0	1.7	68.2	57.6	65.9	150	27.1	25.6	0.15	0.0	0	60
+25	rust-lang/rust	Rust	68.9	8367	59.6	1.9	1.0	0.98	64.6	68.7	71.7	309	11.1	25.0	2.96	0.0	0	52
+26	django/django	Python	68.8	824	45.0	1.28	0.0	1.5	71.4	53.2	57.1	214	28.6	13.9	1.8	0.0	0	60
+27	NVIDIA/cccl	C++	68.4	3069	53.3	2.32	1.0	1.52	65.1	44.5	48.6	114.0	38.4	20.4	2.22	48.3	0	60
+28	microsoft/rushstack	TypeScript	68.4	404	46.7	2.13	0.0	1.25	85.8	33.1	39.2	82.0	31.8	3.8	0.47	1.7	9	60
+29	elastic/kibana	TypeScript	67.8	32172	45.0	1.98	0.0	1.73	63.6	59.4	60.1	123	22.4	24.8	0.55	63.3	0	60
+30	zulip/zulip	Python	67.7	2179	39.7	2.1	0.0	0.76	85.2	55.7	56.4	136	10.7	19.9	2.21	5.2	0	58
+31	godotengine/godot	C++	67.1	4893	36.4	1.24	0	1.58	88.2	38.2	38.2	133.0	66.2	32.5	1.49	0.0	0	55
+32	hashicorp/terraform	Go	66.7	873	50.0	2.12	0.5	1.18	67.0	54.7	55.7	152.0	31.1	20.8	2.58	2.0	0	50
+33	bevyengine/bevy	Rust	66.2	2471	35.6	2.17	0	2.1	67.1	50.0	51.4	120.5	19.2	15.8	0.76	0.0	0	59
+34	ggml-org/llama.cpp	C++	65.7	4559	26.7	1.58	0.0	1.7	81.7	64.3	66.7	96.0	18.3	19.2	0.83	5.0	0	60
+35	pypa/pip	Python	65.6	300	39.3	1.38	0.0	1.5	71.4	55.8	61.0	141	24.7	20.1	0.77	0.0	0	56
+36	typescript-eslint/typescript-eslint	TypeScript	64.1	589	31.7	1.07	0.0	1.32	84.4	54.7	59.4	179.5	35.9	15.8	0.08	0.0	0	60
+37	cloudflare/workers-sdk	TypeScript	62.1	2605	44.6	1.5	0.0	1.36	69.1	64.9	66.0	102	25.8	12.2	2.16	71.4	0	56
+38	matplotlib/matplotlib	Python	62.1	849	30.5	0.95	0	1.8	78.6	57.1	58.9	123.5	44.6	14.7	0.93	0.0	0	59
+39	microsoft/typescript-go	Go	61.9	1432	45.0	1.13	0.0	1.42	72.1	44.1	50.0	127.0	22.1	7.2	0.07	55.0	15	60
+40	microsoft/fluentui	TypeScript	61.7	815	31.7	1.88	0.0	1.47	81.4	45.1	46.0	73	10.6	25.0	1.87	18.3	0	60
+41	systemd/systemd	C	61.5	2966	41.5	1.96	0	1.19	75.2	43.1	46.7	92	0.0	3.5	2.38	54.7	0	53
+42	flutter/flutter	Dart	61.3	5903	43.3	1.62	0.0	1.27	68.0	70.1	72.2	90	7.2	14.4	0.77	81.7	0	60
+43	openssl/openssl	C	61.3	1943	40.0	1.37	0.0	2.95	58.5	57.3	62.2	132.5	13.4	9.1	1.48	0.0	0	60
+44	microsoft/onnxruntime	C++	61.0	2131	51.7	1.22	1.0	1.28	57.5	64.4	68.5	199	5.5	3.4	0.55	58.3	1	60
+45	vllm-project/vllm	Python	60.9	12225	36.7	1.37	0.0	1.5	67.5	73.5	81.9	92	9.6	13.4	1.12	11.7	0	60
+46	pytorch/pytorch	Python	60.0	14177	41.7	1.07	0.0	1.77	84.7	29.4	32.9	63	0.0	14.9	1.6	0.0	0	60
+47	rust-lang/cargo	Rust	59.8	792	46.7	1.13	0.0	1.22	60.3	64.7	67.6	277.0	4.4	7.0	1.7	0.0	0	60
+48	huggingface/transformers	Python	59.4	3557	41.7	1.68	0.0	1.17	69.2	61.7	67.3	88	16.8	12.9	0.35	1.7	0	60
+49	apache/spark	Scala	59.3	4747	48.3	1.07	0.0	1.68	45.3	59.4	62.5	306.5	14.1	21.1	0.53	0.0	0	60
+50	eslint/eslint	JavaScript	58.6	534	30.0	1.27	0.0	1.52	71.4	39.8	40.8	199.5	30.6	19.1	0.17	0.0	0	60
+51	sympy/sympy	Python	58.3	482	33.3	1.78	0.0	0.57	84.1	43.0	50.5	107	22.4	6.4	0.67	0.0	0	60
+52	WebKit/WebKit	JavaScript	57.0	20998	37.5	1.3	0.0	1.16	76.7	47.9	52.1	94	4.1	13.2	2.88	0.0	0	56
+53	aws/aws-cdk	TypeScript	56.8	1400	33.3	1.07	0.0	1.22	76.6	34.4	40.6	168.5	10.9	12.0	0.93	1.7	0	60
+54	apache/lucene	Java	56.7	949	45.0	1.17	0.0	0.97	64.3	71.4	71.4	158.0	4.3	16.4	0.68	0.0	0	60
+55	elastic/elasticsearch	Java	56.4	15505	36.7	1.47	0.0	1.17	60.2	71.6	73.9	137.0	9.1	22.7	0.3	1.7	0	60
+56	astral-sh/ruff	Rust	56.0	5097	42.1	1.89	0	0.96	67.0	29.6	36.5	166	23.5	15.9	1.4	1.8	0	57
+57	microsoft/STL	C++	56.0	385	41.4	1.22	0.0	1.16	83.1	9.9	15.5	111	7.0	10.5	0.17	20.7	0	58
+58	n8n-io/n8n	TypeScript	55.8	11028	45.0	1.6	0.0	1.13	59.4	43.8	45.8	223.0	0.0	28.0	0.73	46.7	0	60
+59	dotnet/roslyn	C#	55.5	2750	46.7	1.23	0.0	1.52	59.5	40.5	47.3	121.5	5.4	20.0	0.13	53.3	7	60
+60	mattermost/mattermost	TypeScript	54.5	3410	35.0	1.13	0.0	1.6	66.2	47.1	52.9	114.0	4.4	7.8	0.3	40.0	22	60
+61	nodejs/node	JavaScript	53.6	2800	33.3	0.65	0.0	2.85	62.9	71.4	77.1	117	28.6	10.0	1.41	0.0	0	54
+62	pytest-dev/pytest	Python	52.6	594	31.7	0.85	0.0	1.38	78.4	37.3	39.2	113	15.7	15.2	1.42	1.7	0	60
+63	vercel/next.js	JavaScript	51.9	4678	31.6	1.07	0	1.16	72.1	60.7	60.7	115	14.8	10.8	2.77	29.8	0	57
+64	vitest-dev/vitest	TypeScript	51.4	1186	33.3	1.33	0.0	1.17	65.0	55.0	56.2	122.0	17.5	15.3	0.42	3.3	0	60
+65	containerd/containerd	Go	51.0	1048	25.0	0.57	0.0	2.57	70.6	76.5	79.4	96.0	8.8	11.4	2.1	58.3	0	60
+66	sveltejs/kit	JavaScript	50.9	1341	30.0	1.02	0.0	1.13	78.7	29.5	36.1	143	50.8	8.1	0.05	26.7	0	60
+67	prisma/orm	TypeScript	50.8	801	30.0	0.78	0.0	1.18	63.8	76.6	83.0	210	14.9	4.3	0.78	56.7	0	60
+68	llvm/llvm-project	LLVM	50.6	43816	26.7	1.13	0.0	1.13	77.9	61.8	63.2	88.0	19.1	7.0	0.85	0.0	0	60
+69	brave/brave-core	C++	50.5	7551	22.6	0.83	0	1.34	75.0	75.0	76.9	110.0	3.8	11.4	1.38	20.8	1	53
+70	etcd-io/etcd	Go	50.5	779	35.0	1.27	0.0	1.57	61.2	52.5	56.2	70.5	12.5	2.5	2.12	1.7	0	60
+71	angular/angular	TypeScript	50.3	3879	35.0	1.17	0.0	1.28	67.1	44.3	47.1	113.0	20.0	10.9	1.5	0.0	0	60
+72	rust-lang/rust-clippy	Rust	50.2	816	30.0	0.73	0.0	0.78	88.6	29.5	29.5	274.0	9.1	9.5	1.32	0.0	0	60
+73	envoyproxy/envoy	C++	49.1	3790	30.0	1.37	0.0	1.38	58.5	53.7	59.8	113.5	0.0	8.7	0.62	16.7	0	60
+74	microsoft/terminal	C++	48.5	324	33.3	1.61	0.0	1.33	57.7	42.3	49.5	103	24.7	19.3	0.52	0.0	0	54
+75	mui/material-ui	JavaScript	48.5	1434	30.0	0.93	0.0	1.17	60.7	73.2	78.6	161.5	14.3	7.9	1.55	8.3	0	60
+76	supabase/supabase	TypeScript	48.0	6105	26.7	0.93	0.0	1.38	71.4	35.7	44.6	125.5	48.2	11.0	0.22	43.3	0	60
+77	immich-app/immich	TypeScript	46.1	2841	31.0	0.78	0.0	1.22	75.6	40.0	42.2	93	2.2	14.3	1.93	0.0	0	58
+78	pulumi/pulumi	Go	46.1	2386	30.0	0.55	0.0	1.08	75.8	57.6	57.6	131	24.2	16.7	1.98	3.3	0	60
+79	python/cpython	Python	46.0	9917	23.6	1.51	0	0.73	83.5	30.6	35.3	80	54.1	17.4	0.56	0.0	0	55
+80	trinodb/trino	Java	46.0	2685	30.5	1.46	0	1.34	62.6	37.4	42.9	86	2.2	17.1	1.49	5.1	0	59
+81	numpy/numpy	Python	45.4	1829	26.0	1.08	0.0	0.64	68.1	58.3	59.7	166.5	15.3	16.7	0.5	0.0	0	50
+82	prometheus/prometheus	Go	44.7	1384	24.5	0.87	0	1.23	67.9	42.9	44.6	216.0	12.5	10.7	0.77	0.0	0	53
+83	jupyterlab/jupyterlab	TypeScript	44.3	748	43.3	0.97	0.0	1.05	60.3	34.5	48.3	121.0	17.2	19.8	0.13	21.7	0	60
+84	mozilla/pdf.js	JavaScript	43.6	1205	23.3	0.55	0.0	1.18	84.8	18.2	18.2	132	24.2	13.0	0.82	0.0	0	60
+85	php/php-src	C	43.6	1354	25.0	0.6	0.0	1.15	83.3	61.1	61.1	70.0	13.9	11.0	0.83	0.0	0	60
+86	rust-lang/rust-analyzer	Rust	43.6	1471	26.3	0.65	0	0.98	73.0	35.1	37.8	308	18.9	13.8	1.37	0.0	0	57
+87	microsoft/playwright	TypeScript	42.1	2646	25.0	0.78	0.0	1.07	89.4	27.7	27.7	84	6.4	25.0	0.5	0.0	1	60
+88	react/react	JavaScript	42.0	770	23.3	0.45	0.0	1.5	63.0	63.0	70.4	136	14.8	13.0	3.03	1.7	0	60
+89	grafana/grafana	TypeScript	41.8	13275	25.0	0.56	0.0	1.37	58.6	58.6	65.5	183	10.3	11.8	0.77	19.2	0	52
+90	servo/servo	Rust	41.3	5484	33.3	1.23	0	1.19	57.1	50.0	50.0	84.5	25.7	5.0	1.14	0.0	0	57
+91	ClickHouse/ClickHouse	C++	41.1	21823	18.3	0.62	0.0	0.83	83.8	40.5	48.6	124	21.6	3.8	0.38	61.7	25	60
+92	withastro/astro	TypeScript	40.8	2000	15.0	0.37	0.0	1.15	86.4	22.7	22.7	195.0	59.1	3.6	0.28	0.0	14	60
+93	biomejs/biome	Rust	40.5	2301	26.7	0.85	0.0	0.8	68.6	49.0	49.0	137	17.6	19.5	1.58	56.7	0	60
+94	apollographql/apollo-client	TypeScript	40.2	320	28.8	1.04	0.0	0.73	57.4	66.7	66.7	149.5	25.9	8.5	0.52	30.8	4	52
+95	libuv/libuv (low vol)	C	40.1	174	27.1	0.66	0	1.59	64.1	43.6	46.2	89	41.0	10.0	0.51	0.0	0	59
+96	bitwarden/clients	TypeScript	39.7	4052	16.7	0.65	0.0	1.37	51.3	76.9	79.5	169	5.1	23.5	0.25	28.3	0	60
+97	storybookjs/storybook	TypeScript	39.2	1755	25.0	0.67	0.0	1.12	70.0	27.5	37.5	149.5	17.5	6.8	1.12	45.0	1	60
+98	vitejs/vite	TypeScript	37.8	1065	23.3	0.4	0.0	0.83	75.0	41.7	45.8	170.0	54.2	14.6	0.6	3.3	0	60
+99	python/mypy	Python	36.8	949	23.2	0.57	0.0	0.8	71.9	43.8	43.8	143.0	6.2	19.0	0.18	0.0	0	56
+100	trpc/trpc (low vol)	TypeScript	36.3	219	12.5	0.19	0.0	0.65	77.8	55.6	55.6	321	22.2	30.0	2.52	64.6	1	48
+101	twentyhq/twenty	TypeScript	35.3	8012	36.7	1.02	0.0	1.07	57.4	42.6	45.9	68	6.6	12.0	0.63	60.0	0	60
+102	backstage/backstage	TypeScript	34.8	2783	25.0	0.52	0.0	1.38	51.6	38.7	45.2	192	22.6	13.2	1.12	75.0	1	60
+103	SerenityOS/serenity	C++	34.5	654	30.0	0.78	0.0	0.5	53.2	55.3	61.7	130	0.0	9.6	0.98	0.0	0	60
+104	sveltejs/svelte	JavaScript	34.2	831	20.0	0.47	0	0.95	84.6	26.9	30.8	91.5	76.9	2.8	0.15	7.3	0	55
+105	astral-sh/uv	Rust	34.1	3153	30.2	0.94	0	0.94	60.0	48.0	50.0	85.0	6.0	5.9	1.79	0.0	2	53
+106	electron/electron	C++	34.1	4525	10.9	0.17	0.0	1.59	62.5	62.5	62.5	143.0	37.5	14.3	0.7	0.0	8	46
+107	KhronosGroup/Vulkan-ValidationLayers	C++	33.8	1947	15.0	0.53	0.0	1.12	65.6	50.0	53.1	156.0	9.4	1.8	0.68	0.0	0	60
+108	cloudflare/workerd	C++	33.5	1468	30.0	0.48	0.0	1.47	51.7	51.7	55.2	90	10.3	9.8	1.72	23.3	0	60
+109	zed-industries/zed	Rust	33.3	9853	7.1	0.12	0.0	0.96	71.4	71.4	71.4	196	0.0	38.5	0.39	0.0	0	56
+110	rails/rails	Ruby	33.1	1654	18.3	0.35	0.0	0.35	76.2	52.4	57.1	120	33.3	15.0	1.17	0.0	0	60
+111	Automattic/wp-calypso	TypeScript	32.4	6843	13.3	0.23	0.0	0.53	78.6	42.9	57.1	120.5	7.1	8.0	1.03	30.0	1	60
+112	vim/vim	Vim Script	32.3	1921	28.3	0.67	0.0	0.4	60.0	80.0	80.0	65.0	35.0	3.8	1.9	10.0	0	60
+113	home-assistant/core	Python	32.0	15759	21.2	0.77	0.0	1.38	57.5	55.0	55.0	71.5	27.5	9.7	0.15	26.9	0	52
+114	swiftlang/swift	Swift	31.6	5393	25.5	0.49	0	1.14	32.0	80.0	84.0	108	0.0	14.1	1.31	0.0	0	51
+115	remix-run/react-router	TypeScript	31.5	435	16.7	0.42	0.0	0.35	76.0	24.0	32.0	146	56.0	11.4	0.25	3.3	0	60
+116	prettier/prettier	JavaScript	31.4	1333	19.3	0.33	0	0.25	73.7	57.9	63.2	104	36.8	9.5	0.3	0.0	0	57
+117	babel/babel	TypeScript	30.5	449	20.0	0.32	0.0	1.67	42.1	52.6	52.6	126	21.1	28.6	0.55	15.0	0	60
+118	Azure/azure-sdk-for-js	TypeScript	30.3	2119	21.8	0.73	0	1.22	47.5	52.5	57.5	97.0	2.5	14.3	0.09	30.9	4	55
+119	LadybirdBrowser/ladybird	C++	29.2	4293	13.3	0.17	0.0	0.32	70.0	70.0	70.0	133.5	0.0	20.0	0.7	0.0	0	60
+120	mastodon/mastodon	Ruby	28.9	3002	18.3	0.32	0.0	1.15	57.9	63.2	78.9	109	10.5	11.6	0.62	0.0	0	60
+121	pydantic/pydantic	Python	28.6	598	26.3	0.42	0	1.05	62.5	37.5	37.5	124.0	62.5	8.6	0.35	5.3	0	57
+122	denoland/deno	Rust	28.2	3031	11.7	0.23	0.0	0.58	71.4	21.4	28.6	633.0	14.3	0.0	0.12	0.0	8	60
+123	microsoft/vscode	TypeScript	28.0	17364	5.2	0.09	0.0	1.53	60.0	80.0	80.0	87	0.0	10.0	0.1	72.4	2	58
+124	oven-sh/bun	Rust	26.4	4450	5.0	0.43	0.0	0.2	42.9	21.4	100.0	1012.0	0.0	11.5	0.38	71.7	49	60
+125	home-assistant/frontend	TypeScript	26.0	3791	18.3	0.25	0.0	1.05	73.3	33.3	33.3	75	40.0	15.8	0.37	6.7	1	60
+126	nestjs/nest	TypeScript	26.0	1453	8.3	0.18	0.0	0.18	72.7	81.8	90.9	56	18.2	33.3	0.43	18.3	0	60
+127	neovim/neovim	Vim Script	24.9	3628	20.0	0.52	0.0	0.4	69.2	38.5	42.3	81.5	50.0	4.9	1.3	0.0	0	50
+128	bytecodealliance/wasmtime	Rust	24.6	1913	14.0	0.42	0.0	1.02	52.4	57.1	66.7	113	4.8	2.2	0.44	0.0	0	50
+129	TanStack/router	TypeScript	23.6	1336	8.3	0.1	0.0	0.22	83.3	33.3	50.0	67.0	0.0	0.0	0.17	25.0	0	60
+130	microsoft/TypeScript	Go	22.4	357	8.0	0.08	0	1.2	50.0	50.0	100.0	103.5	0.0	40.0	0.04	40.0	3	25
+131	duckdb/duckdb	C++	22.3	3978	10.9	0.29	0	0.13	50.0	75.0	75.0	164.5	0.0	3.1	0.35	0.0	0	55
+132	apache/doris	Java	21.7	8428	15.0	0.37	0.0	1.32	36.4	45.5	45.5	106.0	0.0	0.0	0.92	50.0	0	60
+133	pandas-dev/pandas	Python	20.9	2811	10.0	0.15	0.0	0.28	66.7	66.7	77.8	76	22.2	5.0	0.23	0.0	0	60
+134	vuejs/core	TypeScript	19.9	906	1.7	0.02	0	0.02	0.0	100.0	100.0	319	0.0	0.0	0.17	35.6	0	59
+135	curl/curl	C	19.7	3515	11.7	0.13	0.0	0.5	62.5	75.0	75.0	82.0	37.5	31.6	0.62	23.3	0	60
+136	tldraw/tldraw	TypeScript	18.2	2260	13.3	0.27	0.0	0.57	31.2	43.8	75.0	97.5	6.2	22.6	0.17	18.3	0	60
+137	excalidraw/excalidraw (low vol)	TypeScript	15.1	271	10.0	0.25	0.0	0.63	53.3	46.7	53.3	94	13.3	24.0	0.53	0.0	0	60
+138	FreeRDP/FreeRDP	C	10.3	989	8.5	0.56	0	0.42	33.3	30.3	30.3	49	0.0	6.2	0.86	0.0	0	59
+
+138 repos ranked (>=20 sampled PRs).
+
+## TypeScript/JavaScript (48 ranked)
+rank	repo	lang	rigor	merged/yr	cover%	thr/PR	thr_med	revs/PR	outdated%	reply%	discuss%	chars	sugg%	react/100	fpush/PR	ai%	agent_prs	n
+17	facebook/lexical	TypeScript	71.1	813	32.2	1.17	0	1.85	78.3	75.4	75.4	160	31.9	2.4	0.71	0.0	0	59
+19	WordPress/gutenberg	JavaScript	70.1	5990	48.3	1.65	0.0	1.25	72.5	63.7	66.7	131.5	29.4	21.0	0.98	5.0	0	60
+24	open-telemetry/opentelemetry-js	TypeScript	68.9	739	43.3	1.42	0.0	1.7	68.2	57.6	65.9	150	27.1	25.6	0.15	0.0	0	60
+28	microsoft/rushstack	TypeScript	68.4	404	46.7	2.13	0.0	1.25	85.8	33.1	39.2	82.0	31.8	3.8	0.47	1.7	9	60
+29	elastic/kibana	TypeScript	67.8	32172	45.0	1.98	0.0	1.73	63.6	59.4	60.1	123	22.4	24.8	0.55	63.3	0	60
+36	typescript-eslint/typescript-eslint	TypeScript	64.1	589	31.7	1.07	0.0	1.32	84.4	54.7	59.4	179.5	35.9	15.8	0.08	0.0	0	60
+37	cloudflare/workers-sdk	TypeScript	62.1	2605	44.6	1.5	0.0	1.36	69.1	64.9	66.0	102	25.8	12.2	2.16	71.4	0	56
+40	microsoft/fluentui	TypeScript	61.7	815	31.7	1.88	0.0	1.47	81.4	45.1	46.0	73	10.6	25.0	1.87	18.3	0	60
+50	eslint/eslint	JavaScript	58.6	534	30.0	1.27	0.0	1.52	71.4	39.8	40.8	199.5	30.6	19.1	0.17	0.0	0	60
+52	WebKit/WebKit	JavaScript	57.0	20998	37.5	1.3	0.0	1.16	76.7	47.9	52.1	94	4.1	13.2	2.88	0.0	0	56
+53	aws/aws-cdk	TypeScript	56.8	1400	33.3	1.07	0.0	1.22	76.6	34.4	40.6	168.5	10.9	12.0	0.93	1.7	0	60
+58	n8n-io/n8n	TypeScript	55.8	11028	45.0	1.6	0.0	1.13	59.4	43.8	45.8	223.0	0.0	28.0	0.73	46.7	0	60
+
+## C/C++ (31 ranked)
+rank	repo	lang	rigor	merged/yr	cover%	thr/PR	thr_med	revs/PR	outdated%	reply%	discuss%	chars	sugg%	react/100	fpush/PR	ai%	agent_prs	n
+2	scylladb/scylladb	C++	84.4	1214	75.0	5.17	2.5	2.1	69.0	75.1	79.3	142	0.8	8.0	5.12	31.7	0	60
+3	open-telemetry/opentelemetry-cpp	C++	82.2	590	41.7	2.33	0.0	1.77	76.2	79.6	82.3	140	0.7	30.7	1.42	11.7	0	60
+4	valkey-io/valkey	C	80.3	940	48.3	3.17	0.0	1.95	78.8	28.2	31.8	164	18.8	30.5	1.52	31.7	0	60
+5	bitcoin/bitcoin	C++	79.9	1411	55.0	2.13	1.0	2.37	65.1	59.6	64.5	318.5	24.1	35.3	2.33	0.0	0	60
+6	ceph/ceph	C++	79.9	3943	53.4	3.24	1.0	1.71	73.9	56.4	58.5	117.0	18.6	12.3	4.31	5.2	0	58
+7	redis/redis	C	79.7	618	61.7	4.05	1.0	1.5	72.7	73.1	75.0	105.5	23.5	8.0	0.75	26.7	0	60
+10	nginx/nginx (low vol)	C	76.5	182	42.3	2	0.0	1.42	90.8	43.7	43.7	167	3.4	1.6	2.9	7.7	0	52
+11	zephyrproject-rtos/zephyr	C	75.8	14886	43.3	2.32	0.0	2.95	76.9	61.5	63.6	71	23.8	11.7	3.47	13.3	0	60
+18	apache/arrow	C++	70.7	1311	40.0	2.2	0.0	1.32	78.4	61.9	64.0	106	22.3	13.7	1.7	33.3	0	60
+20	carbon-language/carbon-lang	C++	69.8	1331	50.0	1.78	0.5	1.07	70.2	78.9	79.8	152.5	25.4	7.3	1.07	0.0	0	60
+27	NVIDIA/cccl	C++	68.4	3069	53.3	2.32	1.0	1.52	65.1	44.5	48.6	114.0	38.4	20.4	2.22	48.3	0	60
+31	godotengine/godot	C++	67.1	4893	36.4	1.24	0	1.58	88.2	38.2	38.2	133.0	66.2	32.5	1.49	0.0	0	55
+
+## Python (18 ranked)
+rank	repo	lang	rigor	merged/yr	cover%	thr/PR	thr_med	revs/PR	outdated%	reply%	discuss%	chars	sugg%	react/100	fpush/PR	ai%	agent_prs	n
+9	scikit-learn/scikit-learn	Python	77.6	1204	52.0	2.34	1.0	1.94	81.4	28.0	36.6	106	64.0	32.3	0.2	0.0	0	50
+13	apache/airflow	Python	72.8	10712	50.0	1.72	0.5	2.08	64.1	68.0	68.9	146	22.3	23.6	2.17	0.0	0	60
+21	scipy/scipy	Python	69.2	1454	47.5	2.22	0	1.42	72.7	43.2	48.9	104	26.6	12.5	1.36	1.7	0	59
+26	django/django	Python	68.8	824	45.0	1.28	0.0	1.5	71.4	53.2	57.1	214	28.6	13.9	1.8	0.0	0	60
+30	zulip/zulip	Python	67.7	2179	39.7	2.1	0.0	0.76	85.2	55.7	56.4	136	10.7	19.9	2.21	5.2	0	58
+35	pypa/pip	Python	65.6	300	39.3	1.38	0.0	1.5	71.4	55.8	61.0	141	24.7	20.1	0.77	0.0	0	56
+38	matplotlib/matplotlib	Python	62.1	849	30.5	0.95	0	1.8	78.6	57.1	58.9	123.5	44.6	14.7	0.93	0.0	0	59
+45	vllm-project/vllm	Python	60.9	12225	36.7	1.37	0.0	1.5	67.5	73.5	81.9	92	9.6	13.4	1.12	11.7	0	60
+46	pytorch/pytorch	Python	60.0	14177	41.7	1.07	0.0	1.77	84.7	29.4	32.9	63	0.0	14.9	1.6	0.0	0	60
+48	huggingface/transformers	Python	59.4	3557	41.7	1.68	0.0	1.17	69.2	61.7	67.3	88	16.8	12.9	0.35	1.7	0	60
+51	sympy/sympy	Python	58.3	482	33.3	1.78	0.0	0.57	84.1	43.0	50.5	107	22.4	6.4	0.67	0.0	0	60
+62	pytest-dev/pytest	Python	52.6	594	31.7	0.85	0.0	1.38	78.4	37.3	39.2	113	15.7	15.2	1.42	1.7	0	60
+
+## Other (41 ranked)
+rank	repo	lang	rigor	merged/yr	cover%	thr/PR	thr_med	revs/PR	outdated%	reply%	discuss%	chars	sugg%	react/100	fpush/PR	ai%	agent_prs	n
+1	grpc/grpc-go	Go	87.5	489	70.6	5.94	3	1.63	86.3	63.0	64.2	120	1.7	18.2	0.75	29.4	0	51
+8	kubernetes/kubernetes	Go	79.6	3568	54.2	3.31	1	1.46	69.2	81.0	83.6	127	16.7	13.0	4.68	0.0	0	59
+12	openjdk/jdk	Java	75.4	4562	50.9	1.89	1	2.14	71.3	64.8	69.4	109.0	13.0	18.8	0.11	0.0	0	57
+14	apache/kafka	Java	72.4	2150	50.0	2.32	0.5	1.37	68.7	65.4	67.0	123	3.4	13.0	0.5	15.0	0	60
+15	dotnet/runtime	C#	72.3	6982	50.0	1.95	0.5	1.77	71.8	47.9	53.0	111	19.7	11.5	0.45	65.0	11	60
+16	apache/datafusion	Rust	71.7	3746	50.0	2.87	0.5	1.53	57.8	58.4	61.3	212	2.9	12.1	1.23	1.7	0	60
+22	tokio-rs/tokio	Rust	69.1	436	51.7	1.57	1.0	1.53	70.2	55.3	58.5	117.0	29.8	10.1	1.42	0.0	0	60
+23	vitessio/vitess	Go	69.1	1479	41.7	1.9	0.0	2.18	51.3	77.3	78.2	255	1.7	5.3	0.92	43.3	0	60
+25	rust-lang/rust	Rust	68.9	8367	59.6	1.9	1.0	0.98	64.6	68.7	71.7	309	11.1	25.0	2.96	0.0	0	52
+32	hashicorp/terraform	Go	66.7	873	50.0	2.12	0.5	1.18	67.0	54.7	55.7	152.0	31.1	20.8	2.58	2.0	0	50
+33	bevyengine/bevy	Rust	66.2	2471	35.6	2.17	0	2.1	67.1	50.0	51.4	120.5	19.2	15.8	0.76	0.0	0	59
+39	microsoft/typescript-go	Go	61.9	1432	45.0	1.13	0.0	1.42	72.1	44.1	50.0	127.0	22.1	7.2	0.07	55.0	15	60
+
+Repos with AI-reviewer threads (>=10):
+repo	ai_threads	ai%PRs	ai_outdated%	ai_resolved%	ai_reply%
+dotnet/runtime	310	65.0	67.1	99.4	14.8
+oven-sh/bun	298	71.7	53.4	85.9	67.4
+trpc/trpc	242	64.6	33.9	78.5	0.0
+ClickHouse/ClickHouse	223	61.7	66.8	95.5	49.3
+microsoft/onnxruntime	176	58.3	71.6	100.0	51.7
+containerd/containerd	172	58.3	62.2	86.0	12.8
+flutter/flutter	160	81.7	45.0	91.9	43.8
+twentyhq/twenty	156	60.0	50.0	89.1	17.3
+backstage/backstage	156	75.0	72.4	72.4	29.5
+systemd/systemd	152	54.7	63.2	88.2	23.0
+prisma/orm	148	56.7	45.3	100.0	49.3
+NVIDIA/cccl	142	48.3	47.2	93.7	43.7
+vitessio/vitess	133	43.3	60.9	81.2	55.6
+elastic/kibana	133	63.3	61.7	73.7	27.1
+redis/redis	120	26.7	34.2	98.3	29.2
+cloudflare/workers-sdk	117	71.4	36.8	99.1	45.3
+dotnet/roslyn	112	53.3	54.5	89.3	14.3
+microsoft/vscode	107	72.4	53.3	93.5	15.9
+home-assistant/core	100	26.9	59.0	86.0	39.0
+apache/doris	93	50.0	30.1	73.1	20.4
+scylladb/scylladb	90	31.7	68.9	80.0	55.6
+microsoft/typescript-go	84	55.0	66.7	77.4	17.9
+biomejs/biome	80	56.7	36.2	62.5	12.5
+storybookjs/storybook	76	45.0	60.5	98.7	25.0
+TanStack/router	67	25.0	17.9	64.2	0.0
+supabase/supabase	65	43.3	52.3	80.0	16.9
+mattermost/mattermost	62	40.0	51.6	79.0	16.1
+apollographql/apollo-client	62	30.8	38.7	58.1	54.8
+bitwarden/clients	61	28.3	47.5	77.0	60.7
+valkey-io/valkey	59	31.7	67.8	91.5	10.2
+apache/arrow	59	33.3	49.2	83.1	39.0
+n8n-io/n8n	54	46.7	53.7	90.7	24.1
+jupyterlab/jupyterlab	45	21.7	66.7	93.3	8.9
+curl/curl	44	23.3	68.2	88.6	65.9
+Automattic/wp-calypso	43	30.0	37.2	62.8	34.9
+nestjs/nest	43	18.3	44.2	86.0	11.6
+apache/kafka	42	15.0	92.9	69.0	26.2
+open-telemetry/opentelemetry-cpp	41	11.7	87.8	73.2	24.4
+envoyproxy/envoy	41	16.7	36.6	78.0	26.8
+grpc/grpc-go	38	29.4	76.3	92.1	42.1
+microsoft/fluentui	36	18.3	66.7	100.0	8.3
+vim/vim	36	10.0	83.3	94.4	94.4
+babel/babel	36	15.0	47.2	55.6	27.8
+brave/brave-core	35	20.8	48.6	100.0	25.7
+Azure/azure-sdk-for-js	35	30.9	51.4	100.0	51.4
+home-assistant/frontend	35	6.7	62.9	100.0	11.4
+vuejs/core	34	35.6	5.9	88.2	58.8
+grafana/grafana	32	19.2	50.0	90.6	31.2
+cloudflare/workerd	30	23.3	43.3	100.0	36.7
+nginx/nginx	29	7.7	100.0	93.1	3.4
+zephyrproject-rtos/zephyr	27	13.3	48.1	88.9	77.8
+sveltejs/kit	26	26.7	69.2	100.0	3.8
+tldraw/tldraw	26	18.3	30.8	73.1	26.9
+microsoft/STL	24	20.7	58.3	100.0	45.8
+vercel/next.js	22	29.8	63.6	100.0	4.5
+microsoft/TypeScript	18	40.0	44.4	66.7	11.1
+vllm-project/vllm	17	11.7	47.1	41.2	17.6
+vitest-dev/vitest	14	3.3	71.4	92.9	7.1
+mui/material-ui	13	8.3	46.2	100.0	15.4
+pydantic/pydantic	12	5.3	16.7	100.0	25.0
+ceph/ceph	11	5.2	54.5	9.1	36.4
+
+Too few PRs sampled to rank: protocolbuffers/protobuf
+
+Excluded (review off GitHub):
+cockroachdb/cockroach	reviewed in Reviewable (reviewable.io banner on 112/120 cached PRs)
+facebook/rocksdb	Meta-internal diffs (internalfb.com Diff links on 60/60 cached PRs; landed by Meta bot)
+protocolbuffers/protobuf	Copybara export of Google-internal review (157/160 cached PRs authored by copybara-service)
+react/react-native	Meta-internal diffs (internalfb.com Diff links on 77/80 cached PRs; landed by meta-codesync)

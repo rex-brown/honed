@@ -1,0 +1,55 @@
+# The reviewer policy's settings (ARCHITECTURE.md section 3). The improve loop may change this file; models must come
+# from the `allowed` lists in honed.toml [models.*]. Efforts: low, medium, high, xhigh, max.
+
+# The finder panel. composition: "specialist" (every member lists lenses: one kind of issue each), "shared_rubric"
+# (no member lists lenses: every member applies every lens, and diversity comes from the models) or "mixed".
+[panel]
+composition = "shared_rubric"
+language_lens = true           # every member also applies the lens for the PR's language (TypeScript, C/C++, Python)
+
+[[panel.members]]
+id = "a"                       # a neutral label: it appears in findings' raised_by, never in a prompt
+model = "claude-sonnet-5-5"
+effort = "medium"
+lenses = []
+
+[[panel.members]]
+id = "b"
+model = "claude-opus-5-5"
+effort = "medium"
+lenses = []
+
+[finders]
+max_tokens = 24000             # output-token hint per member call, thinking included
+max_findings = 8               # per member
+
+[intent]
+model = "claude-sonnet-5-5"
+effort = "low"
+max_tokens = 4000
+
+# Lead judgment: checks every proposed finding against the code, assigns evidence levels and buckets.
+[verifier]
+enabled = true
+model = "claude-opus-5-5"
+effort = "high"
+max_tokens = 32000
+
+# What the reviewer reads (ARCHITECTURE.md section 4, step 1).
+[context]
+max_files = 25                 # changed files shown with their surrounding code
+max_lines = 1800               # lines of diff and code shown in total
+hunk_context_lines = 10        # unchanged lines shown around each hunk
+max_callers = 15               # lines referencing a changed symbol in files the PR didn't change
+max_prior_threads = 6          # review threads on the same files from before the PR
+max_earlier_threads = 25       # review threads from earlier rounds of the same PR
+max_guidance_chars = 6000      # of the repo's REVIEW.md / CLAUDE.md, read at the merge base
+
+# Severity rules and caps (ARCHITECTURE.md section 4, steps 5-6).
+[rank]
+confidence_threshold = 0.5     # a verified finding below this is noted, not posted
+nit_cap = 3                    # posted Nits per review; the rest are noted
+act_on_flag = 5                # more "act on" findings flags the review: the verifier is filtering too little
+important_min_evidence = 3     # Important needs a traced failing path (evidence level 3+), else it's a Nit
+nit_only_categories = ["style", "documentation", "comments"]   # never Important (no high-risk category allowed)
+dedup_line_slack = 3           # lines apart that still count as the same location when merging duplicates

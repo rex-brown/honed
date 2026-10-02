@@ -1,0 +1,19 @@
+Honed
+Copyright 2026 Rex Brown
+
+This product is licensed under the Apache License, Version 2.0 (LICENSE).
+Third-party material and its licenses are listed in THIRD_PARTY_NOTICES.md.
+
+Inputs and inspiration
+----------------------
+
+Alex Owen (https://github.com/aowen14), review-kit
+(https://github.com/aowen14/review-kit). review-kit shaped Honed's
+review-thread outcome taxonomy, the rule that every lesson cites its evidence,
+reading review rules from the base branch, and the fixture-PR regression check.
+Ideas only; no code or text was copied from review-kit.
+
+Lauren Tan (poteto), pstack
+(https://github.com/cursor/plugins/tree/main/pstack, MIT License): prompt text
+adapted into the seed review policy and the improve loop's proposer prompts,
+with attribution in each adapted file; see THIRD_PARTY_NOTICES.md.

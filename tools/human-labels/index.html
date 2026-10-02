@@ -1,0 +1,395 @@
+<!doctype html>
+<!-- Honed: label the blind audit sample (METRICS.md section 5). Serve with `uv run honed human-labels serve`.
+     Self-contained: no build step, no external scripts or fonts. Code is fetched at view time from
+     raw.githubusercontent.com (the repository never redistributes it). The page never shows a comment's thread
+     link, its author or anything about what happened to it afterwards. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Honed Comment Labels</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --fg:#1c2128; --muted:#5d6672; --line:#d9dee5; --code-bg:#f0f2f5; --flag:#fff2c2;
+  --removed:#fbe3e0; --accent:#0f766e; --accent-fg:#ffffff;
+  --valid:#1f8a4c; --invalid:#c2412d; --unsure:#b7791f;
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14171b; --panel:#1c2026; --fg:#e6e9ee; --muted:#9aa4b1; --line:#2c333c; --code-bg:#12151a; --flag:#3d3410;
+  --removed:#3a1d1a; --accent:#2dd4bf; --accent-fg:#0b1512; --valid:#4ade80; --invalid:#f87171; --unsure:#fbbf24;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14171b; --panel:#1c2026; --fg:#e6e9ee; --muted:#9aa4b1; --line:#2c333c; --code-bg:#12151a; --flag:#3d3410;
+  --removed:#3a1d1a; --accent:#2dd4bf; --accent-fg:#0b1512; --valid:#4ade80; --invalid:#f87171; --unsure:#fbbf24;
+  color-scheme:dark }
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);height:100%}
+.side{border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.side header{padding:16px 16px 12px;border-bottom:1px solid var(--line);display:grid;gap:8px}
+.side h1{font-size:15px;margin:0;font-weight:600}
+.who{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.who input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.who input:focus-visible{outline:2px solid var(--accent)}
+.who input[aria-invalid="true"]{border-color:var(--invalid)}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0}
+.count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.save{font:inherit;font-weight:600;padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.save:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.saved{font-size:12px;color:var(--muted)}
+.saved code{font-family:var(--font-mono);font-size:11.5px}
+.list{overflow-y:auto;flex:1;padding:8px}
+.list button{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;width:100%;text-align:left;padding:7px 8px;border:0;background:none;color:var(--fg);font:inherit;font-size:13px;border-radius:6px;cursor:pointer}
+.list button:hover{background:var(--code-bg)}
+.list button[aria-current="true"]{background:var(--code-bg);outline:1px solid var(--line)}
+.list button:focus-visible{outline:2px solid var(--accent)}
+.dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--muted);justify-self:center}
+.dot.valid{background:var(--valid);border-color:var(--valid)} .dot.not_valid{background:var(--invalid);border-color:var(--invalid)} .dot.unsure{background:var(--unsure);border-color:var(--unsure)}
+.list .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.meta{padding:14px 24px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;font-size:13px;color:var(--muted)}
+.meta .repo{color:var(--fg);font-weight:600;font-size:14px}
+.meta a{color:var(--accent)}
+.chip{border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.body{overflow-y:auto;flex:1;padding:20px 24px 24px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-content:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;max-width:80ch}
+.panel h2,.codebox h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.codebox h2 span{text-transform:none;letter-spacing:0;font-family:var(--font-mono);font-weight:400;word-break:break-all}
+.comment p{margin:0;white-space:pre-wrap;word-wrap:break-word}
+.codebar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.codebar button{font:inherit;font-size:12.5px;padding:2px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg);cursor:pointer}
+.codebar .warn{color:var(--unsure)}
+.codebar a{color:var(--accent)}
+.codebox pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 0;overflow-x:auto;font-family:var(--font-mono);font-size:12.5px;line-height:1.55;min-height:3em}
+.codebox .ln{display:block;padding:0 14px;white-space:pre}
+.codebox .ln.flag{background:var(--flag)}
+.codebox .ln.removed{background:var(--removed)}
+.codebox .ln .n{display:inline-block;width:5ch;color:var(--muted);text-align:right;margin-right:1.2ch;user-select:none}
+.codebox .ln.flag .n{color:var(--fg);font-weight:600}
+.codebox .ln .sign{display:inline-block;width:1.5ch;color:var(--muted);user-select:none}
+.verdict{border-top:1px solid var(--line);background:var(--panel);padding:12px 24px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns button{font:inherit;font-weight:600;padding:9px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;display:flex;gap:8px;align-items:center}
+.btns button kbd{font:11px var(--font-mono);border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
+.btns button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btns button:disabled{opacity:.45;cursor:default}
+.btns button.valid[aria-pressed="true"]{border-color:var(--valid);background:color-mix(in srgb,var(--valid) 14%,var(--panel))}
+.btns button.not_valid[aria-pressed="true"]{border-color:var(--invalid);background:color-mix(in srgb,var(--invalid) 14%,var(--panel))}
+.btns button.unsure[aria-pressed="true"]{border-color:var(--unsure);background:color-mix(in srgb,var(--unsure) 16%,var(--panel))}
+.btns .nav{margin-left:auto;font-weight:500}
+.btns .nav + .nav{margin-left:0}
+.note{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note input{flex:1;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-width:200px}
+.note input:focus-visible{outline:2px solid var(--accent)}
+.status{font-size:12px;color:var(--muted)}
+.status.warn{color:var(--unsure)}
+details{font-size:13.5px;max-width:80ch}
+details summary{cursor:pointer;font-weight:600}
+details ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+details kbd{font:11px var(--font-mono);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.start{max-width:64ch;margin:40px auto;padding:0 16px;display:grid;gap:12px}
+.start code{font-family:var(--font-mono);font-size:13px;background:var(--code-bg);padding:1px 5px;border-radius:4px}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;height:auto;min-height:100%}
+  .side{border-right:0;border-bottom:1px solid var(--line);max-height:46vh}
+  .meta,.body,.verdict{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion:no-preference){ .progress i{transition:width .2s} }
+</style>
+</head>
+<body>
+<div class="start" id="start" hidden>
+  <h1>Honed comment labels</h1>
+  <p id="start-why">This page needs the blind sample.</p>
+  <p>Run <code>uv run honed human-labels serve</code> from the repository and use the address it prints. Some browsers refuse to load files into a page opened straight from disk.</p>
+  <p>Or load <code>yardstick/human_labels/sample.json</code> here: <input type="file" id="sample-file" accept=".json,application/json"></p>
+</div>
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <header>
+      <h1>Label review comments</h1>
+      <label class="who">Your GitHub username
+        <input id="labeler" autocomplete="username" spellcheck="false" placeholder="octocat">
+      </label>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="count" id="count">0 labeled</div>
+      <button class="save" id="save">Save labels</button>
+      <div class="saved" id="saved" hidden></div>
+    </header>
+    <nav class="list" id="list" aria-label="Comments"></nav>
+  </aside>
+  <section class="main">
+    <div class="meta" id="meta"></div>
+    <div class="body">
+      <details id="howto" class="panel">
+        <summary>What to decide</summary>
+        <p>Decide whether the comment points at a real problem worth changing the code for:</p>
+        <ul>
+          <li><b>Valid</b>: the problem exists in the code shown (a bug, a risk, a broken contract, missing handling, a test gap), or the requested change is a genuine improvement a careful maintainer would accept (clearer naming, simpler code, better docs, consistency with the codebase).</li>
+          <li><b>Not valid</b>: the claim is wrong about the code, the problem cannot happen, the request is a matter of taste with no benefit, or the comment asks for nothing (praise, a note, a question with no problem behind it).</li>
+          <li><b>Unsure</b>: you would need more context than the code gives. Unsure answers are left out of the audit; a note helps.</li>
+          <li>Decide from the code, not from the reviewer's confidence. You do not know what happened to the comment afterwards, and it does not matter.</li>
+          <li>Label blind: don't open the pull request, look up the review thread or search the dataset. The file link shows the code at the commit the comment was made on, nothing more.</li>
+          <li>Keys: <kbd>1</kbd> valid, <kbd>2</kbd> not valid, <kbd>3</kbd> unsure, <kbd>←</kbd> <kbd>→</kbd> move. A verdict moves on to the next unlabeled comment. Your answers save in this browser as you go; <b>Save labels</b> downloads the file to submit.</li>
+        </ul>
+      </details>
+      <div class="panel comment"><h2>Review comment</h2><p id="comment"></p></div>
+      <div class="codebox">
+        <h2>Code it was made on <span id="path-hint"></span></h2>
+        <div class="codebar" id="codebar"></div>
+        <pre id="code"></pre>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="btns">
+        <button class="valid" data-v="valid">Valid <kbd>1</kbd></button>
+        <button class="not_valid" data-v="not_valid">Not valid <kbd>2</kbd></button>
+        <button class="unsure" data-v="unsure">Unsure <kbd>3</kbd></button>
+        <button class="nav" id="prev">← Prev</button>
+        <button class="nav" id="next">Next →</button>
+      </div>
+      <div class="note"><input id="note" placeholder="Optional note (why, or what you'd need to know)" autocomplete="off"><span class="status" id="status"></span></div>
+    </div>
+  </section>
+</div>
+<script>
+(function(){
+  'use strict';
+  const STORE_KEY = 'honed.human-labels.v1';
+  const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/;
+  const $ = id => document.getElementById(id);
+  let items = [], meta = {honed_version: 'unknown', context_lines: 12};
+  let state = {labeler: '', labels: {}};
+  let current = 0, saveTimer = null, wholeFile = false;
+  const codeCache = new Map();  // item id -> {kind, lines, ...}
+
+  // ---- storage (per browser; the downloaded file is what counts) ----
+  function loadState(){
+    try { const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (s && typeof s === 'object') state = {labeler: s.labeler || '', labels: s.labels || {}}; } catch (e) {}
+  }
+  function persist(){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); setStatus('Saved in this browser.', false); }
+    catch (e) { setStatus('This browser would not keep your answers: use Save labels before closing the page.', true); }
+  }
+  function setStatus(text, warn){ $('status').textContent = text; $('status').className = 'status' + (warn ? ' warn' : ''); }
+  const verdictOf = it => (state.labels[it.id] && state.labels[it.id].verdict) || '';
+  const labeled = () => items.filter(it => verdictOf(it)).length;
+
+  // ---- elements ----
+  function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function link(href, text){ const a = el('a', null, text); a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; }
+  const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+  const rawUrl = it => `https://raw.githubusercontent.com/${it.repo}/${it.commit}/${encPath(it.path)}`;
+  function blobUrl(it){
+    const anchor = it.lines ? `#L${it.lines[0]}` + (it.lines[1] !== it.lines[0] ? `-L${it.lines[1]}` : '') : '';
+    return `https://github.com/${it.repo}/blob/${it.commit}/${encPath(it.path)}${anchor}`;
+  }
+  function commentApiUrl(it){  // the comment's REST resource, for its diff hunk; the permalink itself is never shown
+    const m = /#discussion_r(\d+)$/.exec(it.url || '');
+    return m ? `https://api.github.com/repos/${it.repo}/pulls/comments/${m[1]}` : null;
+  }
+
+  // ---- the list and the current item ----
+  function renderList(){
+    const list = $('list'); list.replaceChildren();
+    items.forEach((it, i) => {
+      const b = el('button'); b.dataset.i = i; b.setAttribute('aria-current', String(i === current));
+      b.append(el('span', 'dot ' + verdictOf(it)), el('span', 'lbl', `${i + 1}. ${it.repo.split('/')[1]} #${it.pr}`));
+      list.append(b);
+    });
+    const n = labeled();
+    $('bar').style.width = (items.length ? 100 * n / items.length : 0) + '%';
+    $('count').textContent = `${n} of ${items.length} labeled`;
+  }
+  function renderItem(){
+    const it = items[current];
+    const metaBox = $('meta'); metaBox.replaceChildren(
+      el('span', 'repo', it.repo), el('span', null, `PR #${it.pr}`), el('span', 'chip', it.language),
+      el('span', null, `${current + 1} / ${items.length}`));
+    if (it.commit) metaBox.append(link(blobUrl(it), 'File at this commit on GitHub'));
+    $('comment').textContent = it.comment;
+    $('path-hint').textContent = '· ' + it.path + (it.lines ? ` · line${it.lines[0] === it.lines[1] ? ' ' + it.lines[0] : 's ' + it.lines[0] + '–' + it.lines[1]}` : '');
+    const v = verdictOf(it);
+    for (const b of document.querySelectorAll('.btns button[data-v]')) b.setAttribute('aria-pressed', String(b.dataset.v === v));
+    $('note').value = (state.labels[it.id] && state.labels[it.id].note) || '';
+    $('prev').disabled = current === 0; $('next').disabled = current === items.length - 1;
+    for (const b of $('list').querySelectorAll('button')) b.setAttribute('aria-current', String(+b.dataset.i === current));
+    const cur = $('list').querySelector('button[aria-current="true"]'); if (cur) cur.scrollIntoView({block: 'nearest'});
+    showCode(it);
+  }
+  function go(i){ current = Math.max(0, Math.min(items.length - 1, i)); wholeFile = false; renderItem(); }
+  function nextUnlabeled(){ for (let k = 1; k <= items.length; k++){ const j = (current + k) % items.length; if (!verdictOf(items[j])) return j; } return current; }
+
+  // ---- code: the file at the commit, else the comment's diff hunk, else a link ----
+  async function loadCode(it){
+    if (codeCache.has(it.id)) return codeCache.get(it.id);
+    let result = null, why = '', gone = false;
+    if (it.commit) {
+      try {
+        const r = await fetch(rawUrl(it));
+        if (r.ok) result = {kind: 'file', lines: (await r.text()).replace(/\r\n/g, '\n').split('\n')};
+        else { gone = r.status === 404; why = gone ? 'GitHub no longer has this commit (the branch was probably force-pushed).' : `raw.githubusercontent.com answered ${r.status}.`; }
+      } catch (e) { why = 'Could not reach raw.githubusercontent.com (offline, or blocked on this network).'; }
+    } else {
+      why = 'GitHub no longer names the commit this comment was made on (the branch was probably force-pushed).';
+    }
+    if (!result) {
+      const api = commentApiUrl(it);
+      if (api) {
+        try {
+          const r = await fetch(api, {headers: {Accept: 'application/vnd.github+json'}});
+          if (r.ok) { const body = await r.json(); if (body && body.diff_hunk) result = {kind: 'hunk', hunk: body.diff_hunk, why, gone}; }
+          else if (r.status === 403 || r.status === 429) why += ' GitHub\'s API rate limit was reached; try again in an hour.';
+        } catch (e) { why += ' GitHub\'s API was unreachable too.'; }
+      }
+    }
+    if (!result) result = {kind: 'none', why, gone};
+    if (result.kind !== 'none') codeCache.set(it.id, result);
+    return result;
+  }
+  async function showCode(it){
+    const pre = $('code'), bar = $('codebar');
+    pre.replaceChildren(el('span', 'ln', 'Loading the code from GitHub…')); bar.replaceChildren();
+    const code = await loadCode(it);
+    if (items[current] !== it) return;  // moved on meanwhile
+    pre.replaceChildren(); bar.replaceChildren();
+    if (code.gone) for (const a of $('meta').querySelectorAll('a')) a.remove();  // the commit's file link is dead too
+    if (code.kind === 'file') renderFile(it, code.lines, pre, bar);
+    else if (code.kind === 'hunk') renderHunk(it, code, pre, bar);
+    else {
+      bar.append(el('span', 'warn', code.why + ' The code can\'t be shown here.'));
+      if (it.commit && !code.gone) { bar.append(' '); bar.append(link(blobUrl(it), 'Open the file at this commit on GitHub')); }
+      pre.append(el('span', 'ln', '(code not available: answer Unsure if you can\'t judge without it)'));
+    }
+  }
+  function line(num, text, flagged, extra){
+    const span = el('span', 'ln' + (flagged ? ' flag' : '') + (extra ? ' ' + extra : ''));
+    span.append(el('span', 'n', num == null ? '' : String(num)));
+    span.append(document.createTextNode(text));
+    return span;
+  }
+  function renderFile(it, lines, pre, bar){
+    if (lines.length && lines[lines.length - 1] === '') lines = lines.slice(0, -1);
+    const [s, e] = it.lines || [1, 0];
+    const ctx = +meta.context_lines || 12;
+    const lo = wholeFile || !it.lines ? 1 : Math.max(1, s - ctx);
+    const hi = wholeFile || !it.lines ? lines.length : Math.min(lines.length, e + ctx);
+    const frag = document.createDocumentFragment();
+    for (let n = lo; n <= hi; n++) frag.append(line(n, lines[n - 1] ?? '', it.lines && n >= s && n <= e));
+    pre.append(frag);
+    if (it.lines && (lo > 1 || hi < lines.length || wholeFile)) {
+      const toggle = el('button', null, wholeFile ? 'Show only the flagged region' : `Show the whole file (${lines.length} lines)`);
+      toggle.addEventListener('click', () => { wholeFile = !wholeFile; showCode(it); });
+      bar.append(toggle);
+    }
+    bar.append(el('span', null, it.lines ? `Highlighted: the flagged line${s === e ? '' : 's'}.` : 'A comment on the whole file.'));
+    if (wholeFile) { const first = pre.querySelector('.ln.flag'); if (first) first.scrollIntoView({block: 'center'}); }
+  }
+  function renderHunk(it, code, pre, bar){
+    const rows = code.hunk.split('\n');
+    const head = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(rows[0] || '');
+    let n = head ? +head[1] : null;
+    const [s, e] = it.lines || [null, null];
+    const frag = document.createDocumentFragment();
+    frag.append(line(null, rows[0] || '', false));
+    for (const row of rows.slice(1)) {
+      const sign = row[0], text = row.slice(1);
+      if (sign === '-') { frag.append(line(null, '-' + text, false, 'removed')); continue; }
+      if (sign === '\\') { frag.append(line(null, row, false)); continue; }  // "\ No newline at end of file"
+      const flagged = n != null && s != null && n >= s && n <= e;
+      frag.append(line(n, (sign === '+' ? '+' : ' ') + text, flagged));
+      if (n != null) n += 1;
+    }
+    pre.append(frag);
+    bar.append(el('span', 'warn', (code.why ? code.why + ' ' : '') + 'Showing the diff hunk GitHub kept with the comment instead; it ends at the commented line.'));
+    const first = pre.querySelector('.ln.flag') || pre.lastElementChild;
+    if (first) first.scrollIntoView({block: 'center'});
+  }
+
+  // ---- verdicts ----
+  function setVerdict(v){
+    const it = items[current];
+    state.labels[it.id] = {verdict: v, note: $('note').value.trim(), updated_at: new Date().toISOString()};
+    persist(); renderList(); renderItem();
+    if (labeled() === items.length) { setStatus(`All ${items.length} labeled. Use Save labels to download your file.`, false); return; }
+    const n = nextUnlabeled(); if (n !== current) setTimeout(() => go(n), 180);
+  }
+  $('note').addEventListener('input', () => {
+    const it = items[current]; if (!verdictOf(it)) return;
+    state.labels[it.id].note = $('note').value.trim(); state.labels[it.id].updated_at = new Date().toISOString();
+    clearTimeout(saveTimer); saveTimer = setTimeout(persist, 500);
+  });
+  $('labeler').addEventListener('input', () => {
+    state.labeler = $('labeler').value.trim(); $('labeler').removeAttribute('aria-invalid');
+    clearTimeout(saveTimer); saveTimer = setTimeout(persist, 500);
+  });
+  for (const b of document.querySelectorAll('.btns button[data-v]')) b.addEventListener('click', () => setVerdict(b.dataset.v));
+  $('prev').addEventListener('click', () => go(current - 1)); $('next').addEventListener('click', () => go(current + 1));
+  $('list').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (b) go(+b.dataset.i); });
+  document.addEventListener('keydown', e => {
+    if ($('app').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target instanceof HTMLInputElement) { if (e.key === 'Escape') e.target.blur(); return; }
+    if (e.key === '1') setVerdict('valid'); else if (e.key === '2') setVerdict('not_valid'); else if (e.key === '3') setVerdict('unsure');
+    else if (e.key === 'ArrowLeft') go(current - 1); else if (e.key === 'ArrowRight') go(current + 1); else return;
+    e.preventDefault();
+  });
+
+  // ---- the file to submit: labels-<username>.json ----
+  $('save').addEventListener('click', () => {
+    const who = $('labeler').value.trim();
+    if (!LOGIN.test(who)) { $('labeler').setAttribute('aria-invalid', 'true'); $('labeler').focus(); setStatus('Enter your GitHub username first: the file is named after it.', true); return; }
+    const n = labeled();
+    if (n === 0) { setStatus('Nothing labeled yet.', true); return; }
+    if (n < items.length && !confirm(`You've labeled ${n} of ${items.length}. Save these now? You can save again later; the newer file replaces the older one.`)) return;
+    const out = {labeler: who, labeled_at: new Date().toISOString(), honed_version: String(meta.honed_version || 'unknown'),
+                 items: items.filter(it => verdictOf(it)).map(it => ({id: it.id, verdict: state.labels[it.id].verdict, note: state.labels[it.id].note || ''}))};
+    const name = `labels-${who}.json`;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2) + '\n'], {type: 'application/json'}));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const saved = $('saved'); saved.hidden = false; saved.replaceChildren(
+      document.createTextNode('Downloaded '), el('code', null, name),
+      document.createTextNode('. Put it in '), el('code', null, 'yardstick/human_labels/'),
+      document.createTextNode(', run '), el('code', null, 'uv run honed human-labels check'),
+      document.createTextNode(' and open a pull request (CONTRIBUTING.md).'));
+  });
+
+  // ---- start ----
+  function start(sample){
+    if (!sample || !Array.isArray(sample.items) || !sample.items.length) { $('start-why').textContent = 'That file is not the sample (no items).'; return; }
+    items = sample.items;
+    loadState();
+    $('labeler').value = state.labeler;
+    $('start').hidden = true; $('app').hidden = false;
+    let seen = false; try { seen = !!localStorage.getItem(STORE_KEY); } catch (e) {}
+    $('howto').open = !seen || labeled() === 0;
+    renderList();
+    const asked = parseInt(location.hash.slice(1), 10);  // #7 opens the seventh comment
+    if (asked >= 1 && asked <= items.length) go(asked - 1);
+    else go(labeled() && labeled() < items.length && verdictOf(items[0]) ? nextUnlabeled() : 0);
+    setStatus(labeled() ? `Loaded your ${labeled()} saved answers.` : 'Answers save in this browser as you go.', false);
+  }
+  $('sample-file').addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    try { start(JSON.parse(await file.text())); } catch (err) { $('start-why').textContent = 'Could not read that file: ' + err.message; }
+  });
+  (async () => {
+    try { const r = await fetch('meta.json', {cache: 'no-store'}); if (r.ok) meta = Object.assign(meta, await r.json()); } catch (e) {}
+    try {
+      const r = await fetch('sample.json', {cache: 'no-store'});
+      if (!r.ok) throw new Error(String(r.status));
+      start(await r.json());
+    } catch (e) {
+      $('start').hidden = false;
+      $('start-why').textContent = location.protocol === 'file:' ? 'This page was opened from disk, so it can\'t load the sample by itself.' : 'The sample could not be loaded from the server.';
+    }
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,757 @@
+{
+  "generated_at": "2026-10-02T03:12:34.132875+00:00",
+  "note": "Blind: no outcomes, replies or judge verdicts, and no code. Each item names the commit the comment was made on and its flagged lines; the labeling page (honed human-labels serve) fetches the file from GitHub. `author` and `url` are the comment's attribution; the page never shows the url. Strings went through the redaction scan (src/honed/core/redaction.py).",
+  "redaction_rules": "7947a96d2851",
+  "items": [
+    {
+      "id": "PRRT_kwDOAHeGUM5sD0Wz",
+      "repo": "elastic/kibana",
+      "pr": 251089,
+      "path": "x-pack/solutions/security/plugins/entity_store/server/domain/assets/component_templates.ts",
+      "language": "typescript",
+      "comment": "The getUpdatesComponentTemplateName function returns a template name ending with 'latest@platform' but should end with 'updates@platform' to properly differentiate it from the latest component template. This is inconsistent with the original implementation where updates templates were named differently from latest templates.\n```suggestion\n  `${ENTITY_BASE_PREFIX}-security_${type}_${namespace}-updates@platform`;\n```",
+      "author": "copilot-pull-request-reviewer",
+      "url": "https://github.com/elastic/kibana/pull/251089#discussion_r2750778213",
+      "commit": "86e137676e5732e9543a80598da076aeb1a31d7b",
+      "lines": [
+        53,
+        53
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM5sD0XE",
+      "repo": "elastic/kibana",
+      "pr": 251089,
+      "path": "x-pack/solutions/security/plugins/entity_store/server/domain/logs_extraction_client.ts",
+      "language": "typescript",
+      "comment": "Remove the empty line added at line 89. This appears to be an unintentional whitespace change that doesn't add value to the code.\n```suggestion\n\n```",
+      "author": "copilot-pull-request-reviewer",
+      "url": "https://github.com/elastic/kibana/pull/251089#discussion_r2750778241",
+      "commit": "86e137676e5732e9543a80598da076aeb1a31d7b",
+      "lines": [
+        89,
+        89
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM53hcx-",
+      "repo": "elastic/kibana",
+      "pr": 255418,
+      "path": "x-pack/solutions/security/plugins/security_solution/server/lib/entity_analytics/maintainers/accesses/run_maintainer.test.ts",
+      "language": "typescript",
+      "comment": "🔴 **Critical** `accesses/run_maintainer.test.ts:184`\n\nTest `throws when ES|QL query fails` incorrectly expects `runMaintainer` to throw on ES|QL failures. The implementation catches these errors and breaks the inner loop to continue with the next integration, so the test will fail because no exception is thrown.",
+      "author": "macroscopeapp",
+      "url": "https://github.com/elastic/kibana/pull/255418#discussion_r3006189766",
+      "commit": "7aa009733d0dd91935f67aff1b7a1d4e7e0d5447",
+      "lines": [
+        184,
+        184
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM53hdpb",
+      "repo": "elastic/kibana",
+      "pr": 255418,
+      "path": "x-pack/platform/test/plugin_api_integration/test_suites/task_manager/check_registered_task_types.ts",
+      "language": "typescript",
+      "comment": "🔴 **Critical** `task_manager/check_registered_task_types.ts:187`\n\nThe expected task type list is not in alphabetical order: `'entity_store:v2:entity_maintainer_task:accesses_frequently_and_infrequently'` is placed after `'entity_store:v2:entity_maintainer_task:automated-resolution'`, but `'accesses' < 'automated'`. Since the actual results are sorted on line 57, the test will fail when comparing to this unsorted expectation.",
+      "author": "macroscopeapp",
+      "url": "https://github.com/elastic/kibana/pull/255418#discussion_r3006194079",
+      "commit": "7aa009733d0dd91935f67aff1b7a1d4e7e0d5447",
+      "lines": [
+        187,
+        187
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM54GDSi",
+      "repo": "elastic/kibana",
+      "pr": 260602,
+      "path": "x-pack/platform/plugins/shared/license_management/public/application/store/reducers/license_management.ts",
+      "language": "typescript",
+      "comment": "🔴 **Critical** `reducers/license_management.ts:74`\n\nThe `?? 0` fallback causes licenses without an expiration date to always return `true` from `isExpired`. When `getExpirationMillis(state)` returns `undefined` (e.g., for basic licenses), the expression `new Date().getTime() > 0` is always true. This incorrectly marks basic and unlicensed states as expired, propagating through `shouldShowRevertToBasicLicense`, `shouldShowStartTrial`, and `getLicenseState` to show incorrect UI elements.",
+      "author": "macroscopeapp",
+      "url": "https://github.com/elastic/kibana/pull/260602#discussion_r3018948349",
+      "commit": null,
+      "lines": [
+        74,
+        76
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56n9gH",
+      "repo": "elastic/kibana",
+      "pr": 260602,
+      "path": "x-pack/platform/plugins/shared/license_management/public/application/store/reducers/license_management.ts",
+      "language": "typescript",
+      "comment": "🟡 **Medium** `reducers/license_management.ts:126`\n\nWhen `getLicense(state)` returns `null`, `getLicenseType(state)` returns `undefined`, which causes `shouldShowRequestTrialExtension` to incorrectly return `true`. The condition `(type !== 'platinum' && type !== 'enterprise')` evaluates to `true` when `type` is `undefined`, so the \"request trial extension\" UI may appear even when no license data exists. Consider adding a guard to return `false` when `type` is `undefined`.\n\n```diff\n export const shouldShowRequestTrialExtension = (state: LicenseManagementState) => {\n+  const type = getLicenseType(state);\n+  if (!type) {\n+    return false;\n+  }\n   if (state.trialStatus.canStartTrial) {\n     return false;\n   }\n-  const type = getLicenseType(state);\n   return (type !== 'platinum' && type !== 'enterprise') || isExpired(state);\n };\n```\n\n\n<details>\n<summary>🤖 Copy this <strong>AI Prompt</strong> to have your agent fix this:</summary>\n\n```text\nIn file x-pack/platform/plugins/shared/license_management/public/application/store/reducers/license_management.ts around lines 126-132:\n\nWhen `getLicense(state)` returns `null`, `getLicenseType(state)` returns `undefined`, which causes `shouldShowRequestTrialExtension` to incorrectly return `true`. The condition `(type !== 'platinum' && type !== 'enterprise')` evaluates to `true` when `type` is `undefined`, so the \"request trial extension\" UI may appear even when no license data exists. Consider adding a guard to return `false` when `type` is `undefined`.\n\nEvidence trail:\nx-pack/platform/plugins/shared/license_management/public/application/store/reducers/license_management.ts lines 48-50 show `getLicenseType` uses optional chaining: `return getLicense(state)?.type;` which returns `undefined` when license is `null`. Lines 121-126 show `shouldShowRequestTrialExtension` doesn't guard against `undefined` type, and the condition `(type !== 'platinum' && type !== 'enterprise')` evaluates to `true` when `type` is `undefined`. Lines 75-80 show `isExpired` returns `false` when no license exists, so it doesn't prevent the issue.\n```\n</details>",
+      "author": "macroscopeapp",
+      "url": "https://github.com/elastic/kibana/pull/260602#discussion_r3075210319",
+      "commit": null,
+      "lines": [
+        126,
+        132
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM54GR8l",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/store/actions/clear_cache_indices.ts",
+      "language": "typescript",
+      "comment": "🟠 **High** `actions/clear_cache_indices.ts:24`\n\nThe type assertion `(error as { body: { message: string } }).body.message` crashes at runtime when the error lacks a `body` property. Network errors, timeouts, and other non-HTTP exceptions don't have the expected shape, causing `TypeError: Cannot read property 'message' of undefined`. The pattern in `reload_indices.ts` uses safe optional chaining (`httpError.body?.message ?? ''`) to handle this.\n<details>\n<summary>Also found in 3 other location(s)</summary>\n\n`x-pack/platform/plugins/shared/index_management/public/application/store/actions/forcemerge_indices.ts:24`\n\n> Unsafe type assertion on error object will crash if error doesn&#39;t have `body.message` structure. If the caught error is a network error, JavaScript Error, or any object without a `body` property, accessing `(error as { body: { message: string } }).body.message` will throw `TypeError: Cannot read property &#39;message&#39; of undefined`. The similar `reloadIndices` function in the same codebase uses safer optional chaining: `httpError.body?.message ?? &#39;&#39;`.\n\n`x-pack/platform/plugins/shared/index_management/public/application/store/actions/close_indices.ts:23`\n\n> Unsafe type assertion on `error` can cause a runtime crash if the error doesn&#39;t have a `body` property. Network errors, timeouts, or other non-HTTP exceptions won&#39;t have the expected `{ body: { message: string } }` structure. Accessing `(error as { body: { message: string } }).body.message` will throw `TypeError: Cannot read property &#39;message&#39; of undefined` when `body` is undefined. Compare with `reload_indices.ts` which uses defensive access: `httpError.body?.message ?? &#39;&#39;`.\n\n`x-pack/platform/plugins/shared/index_management/public/application/store/actions/open_indices.ts:24`\n\n> Unsafe type assertion on `error` can cause a runtime crash if the error doesn&#39;t have a `body` property. Network errors, timeouts, or other non-HTTP exceptions won&#39;t have the expected `{ body: { message: string } }` structure. Accessing `(error as { body: { message: string } }).body.message` will throw `TypeError: Cannot read property &#39;message&#39; of undefined` when `body` is undefined. Compare with `reload_indices.ts` which uses defensive access: `httpError.body?.message ?? &#39;&#39;`.\n\n</details>",
+      "author": "macroscopeapp",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3019029506",
+      "commit": null,
+      "lines": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM54GplF",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/store/actions/close_indices.ts",
+      "language": "typescript",
+      "comment": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Unsafe error cast may throw in the catch block itself.**\n\nIf `error` lacks the `{ body: { message: string } }` shape (network failure, unexpected exception type), accessing `.body.message` throws an uncaught error, losing both error handling and original context.\n\nThis pattern repeats in `refresh_indices.ts`, `forcemerge_indices.ts`, and `extension_action.ts`.\n\n<details>\n<summary>Suggested safer approach</summary>\n\n```diff\n-    } catch (error: unknown) {\n-      notificationService.showDangerToast((error as { body: { message: string } }).body.message);\n+    } catch (error: unknown) {\n+      const message =\n+        typeof error === 'object' && error !== null && 'body' in error\n+          ? (error as { body?: { message?: string } }).body?.message\n+          : undefined;\n+      notificationService.showDangerToast(message ?? 'An unexpected error occurred');\n```\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn\n`@x-pack/platform/plugins/shared/index_management/public/application/store/actions/close_indices.ts`\naround lines 22 - 24, The catch blocks currently unsafely cast error to { body:\n{ message: string } } and access .body.message which can throw; update the error\nhandling in close_indices.ts (the catch in the async action that calls\nnotificationService.showDangerToast and dispatch(clearRowStatus({ indexNames\n}))) to safely derive a message using optional chaining and fallbacks (e.g.,\ncheck error && (error as any).body?.message or use String(error) /\nerror.message) before calling notificationService.showDangerToast, ensuring\ndispatch(clearRowStatus({ indexNames })) still runs; apply the same\nsafe-extraction pattern to the analogous catch blocks in refresh_indices.ts,\nforcemerge_indices.ts, and extension_action.ts so no catch throws while\nformatting the error message.\n```\n\n</details>",
+      "author": "coderabbitai",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3019160453",
+      "commit": null,
+      "lines": [
+        22,
+        24
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM5693lG",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/lib/flatten_panel_tree.ts",
+      "language": "typescript",
+      "comment": "Follow up / note to self - looks like this is also used in rollups, might be good to share code",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3082956300",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        36,
+        36
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56-HcV",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/sections/home/index_list/index_table/index_table.tsx",
+      "language": "typescript",
+      "comment": "This `as` looks unnecessary ",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3083044340",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        122,
+        122
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56-Qfe",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/sections/home/index_list/index_table/index_table.tsx",
+      "language": "typescript",
+      "comment": "It would be better to assign this to a variable with a defined type instead of using `as` - when I do this I get a type error on `key` - either this is correctly highlighting a mistake or I'd prefer that individual line was typescript ignored.",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3083094102",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        565,
+        565
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56_CXh",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/sections/home/index_list/index_table/index_table.tsx",
+      "language": "typescript",
+      "comment": "I'm not sure if there's a solution to this but its rather unsatisfying to have the `| undefined`",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3083372547",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        745,
+        745
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56_EV6",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/sections/home/index_list/index_table/index_table.tsx",
+      "language": "typescript",
+      "comment": "should be `: undefined)` instead",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3083383585",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        832,
+        832
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAHeGUM56_HCC",
+      "repo": "elastic/kibana",
+      "pr": 260603,
+      "path": "x-pack/platform/plugins/shared/index_management/public/application/services/notification.ts",
+      "language": "typescript",
+      "comment": "the `!` wouldn't be needed if a constructor method was used instead of imitating the application contract",
+      "author": "mattkime",
+      "url": "https://github.com/elastic/kibana/pull/260603#discussion_r3083398937",
+      "commit": "4c3853af73706c086e56e98527cd382d05783a6e",
+      "lines": [
+        11,
+        11
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5ske2V",
+      "repo": "facebook/lexical",
+      "pr": 8094,
+      "path": "packages/lexical-table/src/__tests__/unit/LexicalTableCellNode.test.ts",
+      "language": "typescript",
+      "comment": "I don't know why you're doing this cast?\n```suggestion\n          node.getHeaderState(),\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8094#discussion_r2762246184",
+      "commit": "ed91fb5fc41ad4c8c4919df921334a6e79bcbebb",
+      "lines": [
+        250,
+        250
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5skfi6",
+      "repo": "facebook/lexical",
+      "pr": 8094,
+      "path": "packages/lexical-table/src/__tests__/unit/LexicalTableCellNode.test.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n        const node = result!.node;\n        assert($isTableCellNode(node), 'Expected TableCellNode');\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8094#discussion_r2762249972",
+      "commit": "ed91fb5fc41ad4c8c4919df921334a6e79bcbebb",
+      "lines": [
+        247,
+        247
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5skf0L",
+      "repo": "facebook/lexical",
+      "pr": 8094,
+      "path": "packages/lexical-table/src/__tests__/unit/LexicalTableCellNode.test.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n        const node = result!.node;\n        assert($isTableCellNode(node), 'Expected TableCellNode');\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8094#discussion_r2762251536",
+      "commit": "ed91fb5fc41ad4c8c4919df921334a6e79bcbebb",
+      "lines": [
+        264,
+        264
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5r9UE1",
+      "repo": "facebook/lexical",
+      "pr": 8097,
+      "path": "packages/lexical-table/src/__tests__/unit/LexicalTableExtension.test.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n        assert($isTableRowNode(row), 'Expected row node');\n        const cell = row.getFirstChild();\n        assert($isTableCellNode(cell), 'Expected cell node');\n        const cellChildren = cell.getChildren();\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8097#discussion_r2748344232",
+      "commit": "0d0fe98fdb9ef6fd30201a5e75360ca09e05b00e",
+      "lines": [
+        265,
+        268
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5r9Yr-",
+      "repo": "facebook/lexical",
+      "pr": 8097,
+      "path": "packages/lexical-table/src/LexicalTablePluginHelpers.ts",
+      "language": "typescript",
+      "comment": "$dfs here does materialize an array, probably not a big deal but could be a bottleneck for a big paste",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8097#discussion_r2748371432",
+      "commit": "0d0fe98fdb9ef6fd30201a5e75360ca09e05b00e",
+      "lines": [
+        460,
+        460
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5r9cK6",
+      "repo": "facebook/lexical",
+      "pr": 8097,
+      "path": "packages/lexical-table/src/LexicalTablePluginHelpers.ts",
+      "language": "typescript",
+      "comment": "This is calling getColWidths three times when once would be sufficient if the `oldWidthCols` variable was set first and used later, e.g. the `$getTotalTableWidths` function could take the `readonly number[]` since you have already narrowed it to be not-undefined\n```suggestion\n  const oldColWidths = node.getColWidths();\n  if (!oldColWidths) {\n    return node;\n  }\n\n  const usableWidth = parentCellWidth - borderBoxInsets;\n  const tableWidth = $getTotalTableWidth(oldColWidths);\n  if (tableWidth <= usableWidth) {\n    return node;\n  }\n\n  const proportionalWidth = usableWidth / tableWidth;\n  node.setColWidths(oldColWidths.map((width) => width * proportionalWidth));\n```\n\n(this suggestion doesn't include the refactor of `$getTotalTableWidth`)",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8097#discussion_r2748393840",
+      "commit": "0d0fe98fdb9ef6fd30201a5e75360ca09e05b00e",
+      "lines": [
+        791,
+        805
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5x4oAb",
+      "repo": "facebook/lexical",
+      "pr": 8183,
+      "path": "packages/lexical-table/src/LexicalTablePluginHelpers.ts",
+      "language": "typescript",
+      "comment": "we should be getting the _window from the editor",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8183#discussion_r2879931470",
+      "commit": "5723f5ed38434e181e29b09463ad04ee03339f49",
+      "lines": [
+        717,
+        717
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c5yM6r-",
+      "repo": "facebook/lexical",
+      "pr": 8183,
+      "path": "packages/lexical-table/src/LexicalTablePluginHelpers.ts",
+      "language": "typescript",
+      "comment": "These iterator methods are not available in all of the browser versions we support, they are less than a year old (in Safari at least). Probably best to just rewrite this as a for loop that accumulates into a `Set<TableNode>`",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8183#discussion_r2886972459",
+      "commit": "e8be4b65ddb9e52fe1aee0011194b5f54744ef4f",
+      "lines": [
+        451,
+        458
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543hw9",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n  if (theme.cursorName) {\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036078716",
+      "commit": "a0b7c445ea0f2ec243708c75653bbad7539c7a94",
+      "lines": [
+        230,
+        230
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543hy6",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n  theme: {selection?: string; selectionBg?: string} = {},\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036078860",
+      "commit": "a0b7c445ea0f2ec243708c75653bbad7539c7a94",
+      "lines": [
+        257,
+        257
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543h0W",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n      if (theme.selectionBg) {\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036078977",
+      "commit": "a0b7c445ea0f2ec243708c75653bbad7539c7a94",
+      "lines": [
+        338,
+        338
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543kOb",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n    caret.style.cssText = `position:absolute;top:0;bottom:0;right:-1px;`;\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036090947",
+      "commit": "d99af3f72ca4b004a99eb8a036e4f7a3a821b7fd",
+      "lines": [
+        223,
+        223
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543kYt",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n    const posStyle = `position:absolute;top:${top}px;left:${left}px;height:${selectionRect.height}px;width:${selectionRect.width}px;pointer-events:none;`;\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036091778",
+      "commit": "d99af3f72ca4b004a99eb8a036e4f7a3a821b7fd",
+      "lines": [
+        347,
+        347
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c543kdz",
+      "repo": "facebook/lexical",
+      "pr": 8271,
+      "path": "packages/lexical-yjs/src/SyncCursors.ts",
+      "language": "typescript",
+      "comment": "```suggestion\n        `${posStyle}left:0;top:0;background-color:${color};opacity:0.3;z-index:5;`;\n```",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8271#discussion_r3036092173",
+      "commit": "d99af3f72ca4b004a99eb8a036e4f7a3a821b7fd",
+      "lines": [
+        358,
+        358
+      ]
+    },
+    {
+      "id": "PRRT_kwDOEvl_4c6NYEUl",
+      "repo": "facebook/lexical",
+      "pr": 8765,
+      "path": "packages/lexical/src/nodes/LexicalLineBreakNode.ts",
+      "language": "typescript",
+      "comment": "A different name for this probably makes sense, or we should rename the one in LexicalMutations (maybe `isEditorManagedLineBreak`). They don't work the same way, so it may cause confusion.",
+      "author": "etrepum",
+      "url": "https://github.com/facebook/lexical/pull/8765#discussion_r3501123910",
+      "commit": "01ef3a0365aa289bbd53f5f200afb6373e10b829",
+      "lines": [
+        178,
+        178
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385r2Zsa",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6354,
+      "path": "experimental/CHANGELOG.md",
+      "language": "typescript",
+      "comment": "this is not a bugfix for sure, but a breaking change feature.",
+      "author": "pichlermarc",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6354#discussion_r2745870724",
+      "commit": "0aae90258fed8e69477101532a46af1f8e914397",
+      "lines": [
+        22,
+        22
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385sHfBL",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/InMemoryLogRecordExporter.ts",
+      "language": "typescript",
+      "comment": "For new functions like this, is there any benefit to using the Promises APIs directly instead of `async/await`. For callers, I don't believe there is any difference, and any code in the functions has the potential to be more readable.",
+      "author": "cjihrig",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r2752132748",
+      "commit": "70b80f5cf1465b4e8dc62f102a3752e878c5901a",
+      "lines": [
+        60,
+        60
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385ukNmI",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts",
+      "language": "typescript",
+      "comment": "Pretty sure you can:\n\n```suggestion\n        return this._exportWithTimeout(\n```",
+      "author": "trentm",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r2806123800",
+      "commit": "34958de81119d1c272756bae685b0d1bf990b550",
+      "lines": [
+        94,
+        94
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385ulBlr",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts",
+      "language": "typescript",
+      "comment": "Non-blocking. Some comments on the diag logging here:\n\n- Eventually there will be an SDK metric to monitor this (https://opentelemetry.io/docs/specs/semconv/otel/sdk-metrics/#metric-otelsdkprocessorlogprocessed), which will be nice.\n- The `_droppedLogRecordsCount` var name is a little misleading. I did a double-take when I saw it being reset to 0 after logging about a few being dropped. Maybe `_numDroppedSinceLastWarn` or something.\n- The \"log once with count\" comment is also slightly misleading. If one gets to a capacity situation where the app is outstripping the exporting, one gets this `diag.warn()`. \n\n\nE.g. with [a play app](https://gist.github.com/trentm/0b1ef3b551b543c67ba33a922efab4a9) that is hitting the limit, I get the following logging.  Every `.` is a one-second heartbeat. So I'm getting a handful of `diag.warn()`s per second. (This app is talking to an OTLP receiver that takes up to 300ms to respond.)\n\n```\nDropped 16 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\n.\nDropped 264 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 524 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\n.\nDropped 264 log records because maxQueueSize reached\nDropped 524 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\n.\nDropped 268 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 8 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\n.\nDropped 280 log records because maxQueueSize reached\n.\nDropped 20 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 264 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 8 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\n.\nDropped 4 log records because maxQueueSize reached\nDropped 4 log records because maxQueueSize reached\nDropped 24 log records because maxQueueSize reached\n```\n\nI don't have a useful counter suggestion, however, without adding some complexity around controlling the rate of warnings.  Eventually we may want that, or the ability to configure ignoring some warnings, not sure.  At least with NodeSDK, diag is *off* by default, so I suspect we won't get (m)any bug reports. :)",
+      "author": "trentm",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r2806409440",
+      "commit": "34958de81119d1c272756bae685b0d1bf990b550",
+      "lines": [
+        174,
+        188
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385uleKK",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts",
+      "language": "typescript",
+      "comment": "The `exportOp.exportCompleted.then(...)` in `_exportOneBatch()` below can immediately start another ExportOperation when this promise settles. That can lead to *two* concurrent ExportOperations, which can be problematic.\n\nI added this patch to watch for it:\n\n```diff\ndiff --git a/experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts b/experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts\nindex ecd5a0f04..983c006c5 100644\n--- a/experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts\n+++ b/experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts\n@@ -47,6 +47,8 @@ async function waitForResources(logRecords: SdkLogRecord[]): Promise<void> {\n   }\n }\n\n+let numActiveOps = 0;\n+\n /**\n  * Represents an export operation that handles the entire export workflow.\n  */\n@@ -60,6 +62,14 @@ class ExportOperation {\n     logRecords: SdkLogRecord[],\n     exportTimeoutMillis: number\n   ) {\n+    numActiveOps++;\n+    if (numActiveOps !== 1) {\n+      console.log(\n+        '\\n\\nXXX more than on ExportOperation is active!',\n+        numActiveOps,\n+        new Error('here').stack\n+      );\n+    }\n     this._exportScheduledPromise = new Promise<void>(resolve => {\n       this._exportScheduledResolve = resolve;\n     });\n@@ -119,6 +129,7 @@ class ExportOperation {\n       exporter.export(logRecords, result => {\n         clearTimeout(timer);\n         if (result.code === ExportResultCode.SUCCESS) {\n+          numActiveOps--;\n           resolve();\n         } else {\n           reject(\n```\n\nThen triggered it with this script that (a) logs at a rate that outpaces the exporting and (b) periodically calls .forceFlush(): https://gist.github.com/trentm/76059c60c43257f04e44038b0471d970#file-play-forceflush-logs-js\n\n<details>\n<summary>Output from a repro run:</summary>\n\n```\nXXX _exportOneBatch: complete (265ms)\nXXX _maybeStartTimer: call _exportOneBatch w/ full batch\nXXX _exportOneBatch\n\n\nXXX more than on ExportOperation is active! Error: here\n    at new ExportOperation (/Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:48:76)\n    at BatchLogRecordProcessor._flushAll (/Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:186:30)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\nDropped 272 log records because maxQueueSize reached\nXXX _exportOneBatch: complete (142ms)\nXXX _maybeStartTimer: call _exportOneBatch w/ full batch\nXXX _exportOneBatch\n\n\nXXX more than on ExportOperation is active! Error: here\n    at new ExportOperation (/Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:48:76)\n    at BatchLogRecordProcessor._exportOneBatch (/Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:227:26)\n    at BatchLogRecordProcessor._maybeStartTimer (/Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:256:18)\n    at /Users/trentm/tm/opentelemetry-js9/experimental/packages/sdk-logs/build/src/export/BatchLogRecordProcessorBase.js:234:18\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n```\n\n</details>\n\n\nI have a starter patch. See below.\n",
+      "author": "trentm",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r2806564110",
+      "commit": "34958de81119d1c272756bae685b0d1bf990b550",
+      "lines": [
+        224,
+        224
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf385ulkY_",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts",
+      "language": "typescript",
+      "comment": "Attempting to fully flush the *live* `_finishedLogRecords` can **fail to complete**, if the app is adding records faster than the export can handle. The spec says (emphasis mine):\n\n> any tasks associated with LogRecords **for which the LogRecordProcessor had already received events prior to the call to ForceFlush** SHOULD be completed as soon as possible\n\nSo we can grab the current set of `_finishedLogRecords` when `_flushAll` is called and process only those.\n\nI have a starter patch to handle this and the issue above, for discussion:\nhttps://gist.github.com/trentm/76059c60c43257f04e44038b0471d970#file-the-diff",
+      "author": "trentm",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r2806600356",
+      "commit": "34958de81119d1c272756bae685b0d1bf990b550",
+      "lines": [
+        229,
+        229
+      ]
+    },
+    {
+      "id": "PRRT_kwDOCxSf3855GUq2",
+      "repo": "open-telemetry/opentelemetry-js",
+      "pr": 6356,
+      "path": "experimental/packages/sdk-logs/src/export/BatchLogRecordProcessorBase.ts",
+      "language": "typescript",
+      "comment": "Idle perf thought (not really related to this PR): The common case will be all these `logRecord.resource` things being the *same* resource object. I wonder if using a Set to reduce the number of resource objects to `Promise.all()` on would be faster.\n",
+      "author": "trentm",
+      "url": "https://github.com/open-telemetry/opentelemetry-js/pull/6356#discussion_r3041095456",
+      "commit": "b97cbdf4f5c4652edf0961265f128f48f07c214e",
+      "lines": [
+        35,
+        35
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5r8AdK",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33161,
+      "path": "sklearn/linear_model/_cd_fast.pyx",
+      "language": "python",
+      "comment": "Should `R_plus_wj_Xj` itself early exit if `w_j` is zero? `R_plus_wj_Xj` is inline, so it should end up being the same.",
+      "author": "thomasjpfan",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33161#discussion_r2747879264",
+      "commit": "4e9b5e81c1a0914a5bd8cd818358b7f4f30ce4f6",
+      "lines": [
+        816,
+        816
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5x8SCV",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33419,
+      "path": "sklearn/inspection/_plot/decision_boundary.py",
+      "language": "python",
+      "comment": "Could we add a reference to mpl `is_color_like` function, just to help anyone reading the code.",
+      "author": "lucyleeow",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33419#discussion_r2881189979",
+      "commit": "0dd0e2d1f0cda32d52eea2d93e1c86052d349853",
+      "lines": [
+        71,
+        71
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5x8Tw-",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33419,
+      "path": "sklearn/inspection/_plot/decision_boundary.py",
+      "language": "python",
+      "comment": "I think this is a fine way to differentiate between qualitative and continuous colormaps and and I can't see where it would fail - but I think a 'safer' way may be with class.\n\nI think qualitative maps are [`ListedColormap`](https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.ListedColormap.html) (note the `colors` attribute, which we do use later) - it's hard to find documentation but it is mentioned here: https://matplotlib.org/stable/gallery/color/individual_colors_from_cmap.html#extracting-colors-from-a-discrete-colormap\n\nContinuous colormaps are [`LinearSegmentedColormap`](https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html) - note the default of `N=256`\n\nWDYT?",
+      "author": "lucyleeow",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33419#discussion_r2881199113",
+      "commit": "0dd0e2d1f0cda32d52eea2d93e1c86052d349853",
+      "lines": [
+        100,
+        100
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5zjIRv",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33419,
+      "path": "sklearn/inspection/_plot/decision_boundary.py",
+      "language": "python",
+      "comment": "Locally this causes problems for me. It seems that importing matplotlib does not automatically import pyplot:\n\n```python\nIn [1]: import matplotlib as mpl\n\nIn [2]: _, ax = mpl.pyplot.subplots()\n---------------------------------------------------------------------------\nAttributeError                            Traceback (most recent call last)\nCell In[2], line 1\n----> 1 _, ax = mpl.pyplot.subplots()\n\nFile ~/miniconda3/envs/sklearn-env/lib/python3.13/site-packages/matplotlib/_api/__init__.py:217, in caching_module_getattr.<locals>.__getattr__(name)\n    215 if name in props:\n    216     return props[name].__get__(instance)\n--> 217 raise AttributeError(\n    218     f\"module {cls.__module__!r} has no attribute {name!r}\")\n\nAttributeError: module 'matplotlib' has no attribute 'pyplot'\n```\n\nThe tests indeed all pass, but I wonder if that is because `pyplot` was already imported by the time decision boundary tests are run?\n\n@AnneBeyer ",
+      "author": "lucyleeow",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33419#discussion_r2917322675",
+      "commit": "0dd0e2d1f0cda32d52eea2d93e1c86052d349853",
+      "lines": [
+        314,
+        314
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5x1Gzs",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/callbacks.rst",
+      "language": "python",
+      "comment": "I'd introduce that instead by explaining that the estimator builds a tree of tasks dynamically, that each node in the tree represents a given task, i.e. one unit of work, and then roughly describe what a task is with examples from sklearn (fitting and estimator, one iteration of an iterative algorithm, a pipeline step, a cross_validation fold, ...)",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r2878712036",
+      "commit": "e983f42c9a4e65cf7792481b51baf5041db4c564",
+      "lines": [
+        34,
+        35
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s5yFvZK",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/callbacks.rst",
+      "language": "python",
+      "comment": "There is a way to link to an example, it's something like this (based on `git grep -P 'ref.+plot'`)\r\n\r\n```rst\r\n:ref:`sphx_glr_auto_examples_callbacks_plot_callback_support.py`\r\n```",
+      "author": "lesteve",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r2884457392",
+      "commit": "411e9c59b723f8a16b225eb03200a5742615ad78",
+      "lines": [
+        139,
+        139
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s53Sr5K",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/callbacks.rst",
+      "language": "python",
+      "comment": "not sure that this belongs to this page. I would have expected it to be in the user doc\n\n(except the column of required args but I don't think that it adds a lot of value anyway and is hard to predict for future callbacks)",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r3001122101",
+      "commit": "e6f5ca861553e84bab8323e90284952dbf8d3890",
+      "lines": [
+        253,
+        258
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s569fkp",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/callback_support.rst",
+      "language": "python",
+      "comment": "Before introducing the task tree I would first explain what a task is. That is any unit of work defined by the estimator. In scikit-learn usually iterations of the learning algorithm, or steps of a pipeline, cross validation folds, ...",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r3082818761",
+      "commit": "757d3cde25a88916b1e50ac1fa8c1793b4a428b7",
+      "lines": [
+        44,
+        45
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s57Fw5-",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/developing_callbacks.rst",
+      "language": "python",
+      "comment": "Then I'd describe the hooks in the same section",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r3085762547",
+      "commit": "757d3cde25a88916b1e50ac1fa8c1793b4a428b7",
+      "lines": [
+        28,
+        28
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s57F_ZD",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33423,
+      "path": "doc/developers/developing_callbacks.rst",
+      "language": "python",
+      "comment": "Since this is the same for all 4, I'd rather describe them right after the bullet list I proposed above.\n\nIn particular, let's add a dropdown to expalin that the estimator received here is in the same state as it was when it called the hook during fit, so usually not fully fitted, not able to predict/transform/...",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33423#discussion_r3085841080",
+      "commit": "757d3cde25a88916b1e50ac1fa8c1793b4a428b7",
+      "lines": [
+        41,
+        41
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s54PVye",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33664,
+      "path": "sklearn/callback/tests/_utils.py",
+      "language": "python",
+      "comment": "maybe we don't inlude estimator in setup/teardown then.",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33664#discussion_r3022182384",
+      "commit": "80a5df38a713dd31f293643627fd6265cebf7900",
+      "lines": [
+        24,
+        24
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s54h-i2",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33664,
+      "path": "sklearn/callback/tests/test_callback_context.py",
+      "language": "python",
+      "comment": "Let's give some precision. The issue was that a locally defined estimator is not picklable and so putting it into a container managed by the callback manager breaks. You can also add that a future imrpovement could be to make the loky manager use the loky pickler.",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33664#discussion_r3028664405",
+      "commit": "a8f63884154048a377c38d5ee238dd0fe89c5924",
+      "lines": [
+        457,
+        459
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s54RZQ_",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 33665,
+      "path": "doc/whats_new/upcoming_changes/sklearn.compose/33665.fix.rst",
+      "language": "python",
+      "comment": "I would remove the internal detail at the end that has no impact on the user.\n\n```suggestion\n- Fixes the regression that a `KeyError` was thrown when using\n  :func:`compose.ColumnTransformer.fit_transform` with metadata routing and\n  `remainder=\"passthrough\"`.\n```",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/33665#discussion_r3022893368",
+      "commit": "4f6db4956cc485a5c187c0bb5e4efebf0547a196",
+      "lines": [
+        1,
+        4
+      ]
+    },
+    {
+      "id": "PRRT_kwDOAAzd1s6Fp_xs",
+      "repo": "scikit-learn/scikit-learn",
+      "pr": 34153,
+      "path": "examples/callbacks/plot_scoring_monitor.py",
+      "language": "python",
+      "comment": "This is exactly what I expected callbacks to bring: to enable this kind of analysis. It adds a lot of pedagogical value !",
+      "author": "jeremiedbb",
+      "url": "https://github.com/scikit-learn/scikit-learn/pull/34153#discussion_r3323804746",
+      "commit": "c00201515e60c2631bcd55239d120290896a606d",
+      "lines": [
+        223,
+        250
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "note": "PRs and review comments every dataset export leaves out (DATASET.md, Removal). A comment takes its whole review thread with it. Entries: {\"pr\": \"owner/name#N\", \"added\": \"YYYY-MM-DD\"} and {\"id\": \"<review comment node id>\", \"added\": \"YYYY-MM-DD\"}; no reasons or personal details. Changed only by a maintainer; each change is followed by a point release.",
+  "prs": [],
+  "comments": []
+}

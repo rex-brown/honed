@@ -1,0 +1,74 @@
+[project]
+name = "honed"
+version = "0.1.0"
+description = "A code reviewer that hones itself against real review outcomes"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.11",
+    "pyyaml>=6.0.3",
+]
+
+# The `local` LLM backend (ARCHITECTURE.md section 8): MLX-LM in-process, on Apple Silicon only.
+# `uv sync --extra local`, then `uv run honed fetch-local-model`.
+[project.optional-dependencies]
+local = [
+    "mlx-lm>=0.31.3; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "huggingface_hub>=0.30",
+]
+
+[project.scripts]
+honed = "honed.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/honed"]
+
+[dependency-groups]
+dev = ["pytest", "ruff", "import-linter"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+addopts = "-q -m 'not live'"
+markers = ["live: calls the real `claude` CLI on the subscription (opt in: `uv run pytest -m live`)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["research", "data", "data-dev"]  # one-off studies, and data dirs (data/ holds the frozen copy of src/)
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+# ARCHITECTURE.md section 10. `honed.review` is optional until the review pipeline exists.
+[tool.importlinter]
+root_package = "honed"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: cli > config > review | learn | adapters (independent) > ports > core"
+type = "layers"
+containers = ["honed"]
+layers = [
+    "cli",
+    "config",
+    "(review) | learn | adapters",
+    "ports",
+    "core",
+]
+
+[[tool.importlinter.contracts]]
+name = "core is pure: no I/O, processes or network"
+type = "forbidden"
+source_modules = ["honed.core"]
+forbidden_modules = [
+    "io", "os", "pathlib", "shutil", "tempfile", "subprocess", "sqlite3", "socket", "ssl", "urllib", "http",
+    "tomllib", "logging",
+]

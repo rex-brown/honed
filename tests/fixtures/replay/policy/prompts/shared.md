@@ -1,0 +1,2 @@
+<!-- Adapted from pstack by Lauren Tan (https://github.com/cursor/plugins/tree/main/pstack, commit 69cf06fa253b): skills/interrogate/SKILL.md and skills/interrogate/references/rubric.md. MIT License; see THIRD_PARTY_NOTICES.md. -->
+Review the change through each lens below that is relevant to it. Not every lens applies to every change; don't force one that doesn't. A simple bug fix does not need paragraphs about architecture.
