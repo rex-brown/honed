@@ -65,6 +65,7 @@ NEGATIVES = [
     "API_KEY=${{ secrets.API_KEY }}",
     "created 2026-10-01, lines 100-200, PR #12345678, commit 3f2a9c1",
     "pkg@1.2.3 and @types/node@20.1.0",
+    "+@pytest.mark.parametrize",
 ]
 
 
