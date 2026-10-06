@@ -1,5 +1,7 @@
 # Honed
 
+[![CI](https://github.com/rex-brown/honed/actions/workflows/ci.yml/badge.svg)](https://github.com/rex-brown/honed/actions/workflows/ci.yml)
+
 A code reviewer that hones itself against real review outcomes.
 
 Honed reviews a pull request (PR) diff with a panel of Claude models (intent, parallel finders, a verifier that keeps only what it can trace in the code), and learns from what happened to review comments on real pull requests: which ones people fixed, ignored or rejected. Its behavior lives in a versioned policy directory (`policy/`: prompts, settings and learned lessons), and an improve loop proposes one policy change at a time, measures it against a fixed yardstick (a judge, gold issues from human reviews, and the scoring in `METRICS.md`), and keeps it only if a statistical gate says it really helped. Everything runs locally, and the improve loop can run fully offline on a local model.

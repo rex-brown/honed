@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security issue or sensitive data
+    url: https://github.com/rex-brown/honed/security/advisories/new
+    about: Report privately instead of opening a public issue.

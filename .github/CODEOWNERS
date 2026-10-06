@@ -1,0 +1,9 @@
+# The yardstick and the scoring rules are maintainer-owned (ROADMAP.md, Governance): changes need a maintainer's
+# review, because a score only means something while the goalposts are fixed.
+/yardstick/                 @rex-brown
+/METRICS.md                 @rex-brown
+/honed.toml                 @rex-brown
+/src/honed/core/scoring.py  @rex-brown
+/src/honed/learn/gate.py    @rex-brown
+# The canonical reviewer policy: community candidates welcome, merged with eval evidence (CONTRIBUTING.md).
+/policy/                    @rex-brown
