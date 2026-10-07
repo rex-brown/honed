@@ -24,5 +24,6 @@
 
 - [ ] `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run lint-imports` pass
 - [ ] No changes to `yardstick/`, `METRICS.md` or thresholds unless a maintainer agreed in an issue
+- [ ] If this touches data (harvesting, labels, splits, gold, scoring, exports) or contributes data or labels, it follows `DATA_QUALITY.md` (rules and checklists)
 - [ ] No secrets, personal data or repository code from the corpus in the diff
 - [ ] Human labels were made blind (no looking up threads or the dataset first)
