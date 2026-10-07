@@ -53,7 +53,7 @@ F_L  = (1+β²)·P_L·R_L / (β²·P_L + R_L)            β = 0.5, which weights
 S    = Σ_L π_L · F_L                              π = TS 0.45, C/C++ 0.25, Python 0.20, other 0.10
 ```
 
-The language weights π follow the user's language mix, so improving TypeScript reviews moves S the most.
+The language weights π are **personal**: each user sets their own in `honed.toml` (the defaults above follow the original owner's mix). S is for reporting and for ranking candidates in a user's own runs. **The canonical gate (section 3) never uses π**, so the shared reviewer encodes no one's priorities between languages (owner decision, 2026-10-07).
 
 **Edge cases** (decided in phase 1; `core/scoring.py` implements them):
 - Precision with no findings is 1, and recall with no gold issues is 1. F is 0 when both P and R are 0.
@@ -78,8 +78,8 @@ That gives P = 3 / 6 = 0.50, R = 3 / 3.5 = 0.86, and F0.5 ≈ 0.55. The false al
 
 **Precondition:** the eval has passed its sensitivity check for the current models and dataset. It must separate the incumbent from a deliberately weakened policy by more than the noise floor (`ARCHITECTURE.md` section 6).
 
-1. **Real gain:** ΔS = S(candidate) − S(incumbent) ≥ `min_gain`, **and** the 95% paired-bootstrap confidence interval lower bound of ΔS is above 0. Section 6 gives the protocol.
-   - **Exception for pure removals:** a candidate that only deletes policy content passes this check if the confidence interval lower bound of ΔS is ≥ −`min_gain` **and the removed content was exercised** on the gate split: a removed lesson or check fired, or a removed prompt passage was cited, on at least `removal_min_exposure` PR-rounds. Otherwise the removal is `unmeasured`, not harmless, and is not promoted. (The phase 4a trial removed a check that had never fired on its tiny split.)
+1. **Real gain (weight-free):** at least one language L has ΔF_L = F_L(candidate) − F_L(incumbent) ≥ `min_gain_L` **and** a 95% paired-bootstrap confidence interval for ΔF_L whose lower bound is above 0. `min_gain_L` comes from that language's noise floor (section 6); until a per-language floor has been measured, the pooled `min_gain` applies. Combined with rule 2, this accepts only changes that help some language and hurt none, whatever weights a user prefers. A run restricted to one language (`--language L`) is judged on that language alone, plus rule 2 for the others when the change touches anything shared. Section 6 gives the protocol.
+   - **Exception for pure removals:** a candidate that only deletes policy content passes this check if, for every language, the confidence interval lower bound of ΔF_L is ≥ −`min_gain_L` **and the removed content was exercised** on the gate split: a removed lesson or check fired, or a removed prompt passage was cited, on at least `removal_min_exposure` PR-rounds. Otherwise the removal is `unmeasured`, not harmless, and is not promoted. (The phase 4a trial removed a check that had never fired on its tiny split.)
 2. **No language regresses:** for each L with at least 30 PRs, F_L(candidate) ≥ F_L(incumbent) − 0.02.
 3. **Bug-catching holds:** recall on Important gold issues (`R_imp`) ≥ incumbent − 0.02.
 4. **Clean PRs stay quiet:** the share of clean PRs (no gold issues) that receive at least one Important finding doesn't rise by more than 2 percentage points.
@@ -192,9 +192,9 @@ The proposer reads these to decide what to change.
 | `gate.removal_min_exposure` | 5 PR-rounds |
 | `gate.screen_fraction` | 0.2 of the validation split (section 3, screening) |
 | `judge.local_min_human_accuracy` | 0.75 |
-| `metrics.language_weights` | TS 0.45, C/C++ 0.25, Python 0.20, other 0.10 |
+| `metrics.language_weights` | TS 0.45, C/C++ 0.25, Python 0.20, other 0.10 (personal: reporting and ranking only, never the canonical gate) |
 | `metrics.gold_conf` | applied suggestion 1.0, human `fixed` (addressed) 1.0, human `fixed` (partially) 0.8, human `open_at_merge` 0.8, escaped defect 0.8, judge-only 0.6, benchmark golden comment 1.0 (test split only) |
-| `gate.min_gain` | max(0.01, 2σ noise floor) |
+| `gate.min_gain` | max(0.01, 2σ noise floor); `min_gain_L` per language once measured |
 | `gate.language_tolerance`, `gate.important_recall_tolerance` | 0.02, 0.02 |
 | `gate.min_prs_per_language` | 30 |
 | `gate.clean_pr_alarm_rise_pp` | 2 |
