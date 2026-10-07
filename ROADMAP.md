@@ -55,6 +55,8 @@ Notes from building it: the `anthropic` backend is unit-tested against a fake SD
 
 ### Data quality (planned 2026-10-07)
 
+The rules, what is enforced today, the audits and the checklists for contributors are in `DATA_QUALITY.md`; this section records the plan.
+
 Training and held-out data must stay high quality as more of it is added. The checks already in place: rigor-ranked source repositories, bot, backport and automation filtering, outcomes from real code changes, the addressed check, human-grounded gold provenance, per-round gold, time-ordered splits with a private test half, benchmarks as test-only, the fixed and audited judge, redaction, and lessons that need two authors' PRs. Additions:
 
 1. **Review provenance.** Every review comment gets a provenance label: `human`, `ai_assisted`, `autonomous` or `unknown`. Each label carries a confidence and the signals that fired: platform metadata (GitHub App posting, Copilot markers, auto-generated tags, AI co-author trailers and "generated with" lines), repository AI-disclosure policies, behavior (bursts of long comments, round-the-clock cadence, templates reused across repositories, superhuman latency), and style drift from the same reviewer's pre-2023 writing (a weak signal). The classifier is calibrated on known-provenance comments (bot accounts as AI, pre-2023 comments as human), and its error rates ship with each dataset version.

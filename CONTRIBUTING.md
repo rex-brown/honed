@@ -1,6 +1,6 @@
 # Contributing
 
-Three kinds of contribution are welcome: **human labels** that calibrate the judge (about an hour, no setup beyond `uv sync`), changes to the reviewer's **policy** (`policy/`), which must come with evidence, and changes to the **code** (`src/`, `tests/`, `scripts/`, `tools/`), which must keep the checks green. Read `ARCHITECTURE.md` first; `METRICS.md` defines what "better" means.
+Three kinds of contribution are welcome: **human labels** that calibrate the judge (about an hour, no setup beyond `uv sync`), changes to the reviewer's **policy** (`policy/`), which must come with evidence, and changes to the **code** (`src/`, `tests/`, `scripts/`, `tools/`), which must keep the checks green. Read `ARCHITECTURE.md` first; `METRICS.md` defines what "better" means. Anything that touches data (harvesting, labels, splits, gold, scoring, exports), and any contribution of data or labels, follows `DATA_QUALITY.md`: its rules and checklists apply to every pull request.
 
 **Response times.** The maintainer is away for now, so responses to issues and pull requests may be slow. Pull requests and label files are welcome in the meantime and will be reviewed when the maintainer is back.
 

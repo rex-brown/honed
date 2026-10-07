@@ -149,6 +149,7 @@ As far as a survey on 2026-10-01 found, no other project combines harvested revi
 - `METRICS.md`: how a review is scored, and the gate a policy change must pass.
 - `ROADMAP.md`: what is built, and the plan for the open-source release.
 - `DATASET.md`: the published dataset: contents, provenance, licensing, privacy, removal, rehydration.
+- `DATA_QUALITY.md`: the data rules every contributor keeps, what is enforced today, the human audits, and what is planned.
 - `CONTRIBUTING.md`, `SECURITY.md`, `THIRD_PARTY_NOTICES.md`.
 
 ## Acknowledgements
