@@ -145,6 +145,20 @@ Judge labels count only while these audits pass. Each is re-run whenever the dat
 
 If a judge audit fails, judge-only labels are dropped: VU findings get zero credit and judge-only gold issues are removed until the audit is fixed. If the matcher audit fails, offline promotions are *provisional* until an online run re-scores them with Fable.
 
+### Human audits (tracked; proposed 2026-10-07)
+
+Every dataset version gets a set of human audits. Each audit is a blind, stratified sample (by language, repository and comment provenance), labeled by at least 2 people who did not author or review the PRs in it. Each is recorded in the audit ledger (`AUDITS.md` plus `yardstick/audits/<audit-id>/`: the sample, one label file per labeler, and the computed results), so coverage and results can be tracked over time.
+
+| Audit | Question asked of the humans | Sample per dataset version | Threshold | If it fails |
+|---|---|---|---|---|
+| Judge validity | Is this review comment a valid issue? (the table above) | 50 | Accuracy ≥ 0.85, κ ≥ 0.6 | Judge-only labels dropped (above) |
+| Gold precision | Is this gold issue a real issue in the code shown? | 60 | ≥ 0.90 real | Lower `gold_conf` for the failing provenance; block the release if below 0.80 |
+| Gold severity | Is it Important, a Nit, or Pre-existing? | the same 60 | Agreement with the judge's severity ≥ 0.80; Important precision ≥ 0.85 | The Important-only metrics are reported as provisional |
+| Addressed check | Did the later change address the comment? | 50 `fixed` threads | Accuracy ≥ 0.85 | `fixed` positives fall back to `changed_unaddressed` for the failing class |
+| Provenance | Does this comment read as written by a person, assisted by AI, or fully automated? | 50, stratified by predicted class | Reported with the classifier's error rates on known-provenance comments (bot accounts; pre-2023 comments) | Comments of uncertain provenance are excluded from human-provenance gold |
+
+Labelers report their agreement with each other too (Fleiss' or Cohen's κ). An audit with κ below 0.4 between humans is inconclusive: the question or the guidance needs work before the result counts. A dataset version is released only when every audit has reached its sample size and either passed or had its failure handled as the table says.
+
 ## 6. Statistical protocol
 
 - **Paired bootstrap:** resample validation PRs with replacement, stratified by language; 1,000 resamples; S is recomputed for both policies on each resample.
