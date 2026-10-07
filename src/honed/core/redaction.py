@@ -71,7 +71,13 @@ _RESERVED_TLDS = (".example", ".test", ".invalid", ".localhost")
 
 def _personal_email(match: re.Match[str]) -> bool:
     local, _, domain = match.group(0).lower().rpartition("@")
-    if local == "git" or _NOREPLY.search(local) or domain.endswith("noreply.github.com") or "noreply" in domain:
+    if (
+        local == "git"
+        or not any(c not in "+- " for c in local)
+        or _NOREPLY.search(local)
+        or domain.endswith("noreply.github.com")
+        or "noreply" in domain
+    ):
         return False
     reserved = domain in _RESERVED_DOMAINS or domain.endswith(tuple(f".{d}" for d in _RESERVED_DOMAINS))
     return not reserved and not domain.endswith(_RESERVED_TLDS)
@@ -121,7 +127,7 @@ _ASSIGNMENT = (
     rf"(?i)\b[\w-]*{_KEYWORD}[\w-]*[\"']?\s*(?:=|:=|:|=>)\s*(?P<q>[\"'`]?)"
     r"(?P<value>[A-Za-z0-9_\-+/=]{12,})(?P=q)(?![A-Za-z0-9_\-+/=(.\[])"
 )
-_EMAIL = r"(?<![\w.+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b"
+_EMAIL = r"(?<![\w.+-])[+-]*[A-Za-z0-9._%][A-Za-z0-9._%+-]*@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b"
 _PHONE = (
     r"(?<![\w+.-])(?:\+\d{1,3}[ .-]?(?:\(\d{1,4}\)[ .-]?)?\d{1,4}(?:[ .-]\d{2,4}){1,4}"
     r"|\(\d{3}\) ?\d{3}[ .-]\d{4}|\d{3}([.-])\d{3}\1\d{4})(?![\w.-]?\d)"
