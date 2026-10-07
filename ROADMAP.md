@@ -65,7 +65,12 @@ Training and held-out data must stay high quality as more of it is added. The ch
    - **Lesson evidence from train only:** a lesson that cites a validation or test PR is refused, enforced mechanically in the proposer and the gate.
    - **Model memorization probes:** for a sample of held-out PRs, give the reviewer and judge models the PR context with the human review comment withheld, and measure verbatim and near-verbatim overlap between their output and the real comment. Compare that with the same probe on post-cutoff PRs, which they can't have seen. A pre-cutoff excess means memorization: report it, and weight post-cutoff results more heavily.
    - **Keeping our data out of future models:** every published bundle and `DATASET.md` carries a unique canary string and a request not to train on the data, so later models can be checked for having trained on it. The private test half is never published, and held-out sets are refreshed with post-cutoff PRs as new models arrive.
-5. **Concentration limits.** Cap the PRs per repository and per reviewer in each split, so a few prolific reviewers don't define what a real issue is.
+5. **Concentration limits, enforced, not just reported.** Defaults, configurable:
+   - **Per repository:** at most 15% of a split's PRs.
+   - **Per PR author:** at most 5% of a split's PRs.
+   - **Per reviewer:** at most 5% of a split's gold weight. A prolific reviewer's gold issues are down-weighted to the cap rather than dropped, so no data is lost, but no single reviewer defines what a real issue is.
+
+   The caps are applied when splits are assigned and when gold weights are computed, and the data-quality report shows each split's largest shares.
 6. **A data-quality report per dataset version, enforced in CI.** It covers label, severity and provenance mix per language and repository, how the splits compare, audit coverage and results, filter counts, and duplicates found.
 7. **Rules for contributed data.** New repositories must meet the rigor bar; labels always come from the fixed judge, never from contributors; only maintainers add to held-out data; and each addition is a versioned dataset release with a changelog.
 
