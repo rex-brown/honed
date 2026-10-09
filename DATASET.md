@@ -139,7 +139,7 @@ uv run honed rehydrate                   # clones each repo once (bare, blobless
 
 ## Gold in Martian's format
 
-`honed export-gold --format martian [--split S] [--repo R] [--out DIR]` writes our gold issues as Martian Code Review Bench golden comments, one file per source repo (`<owner>__<name>.json`, default under `data/exports/martian/`), so a tool's reviews can be scored on our PRs with Martian's pipeline and compared with its leaderboard. Each file is a list of `{"pr_title", "url", "comments": [{"comment", "severity", "category"}]}`, the shape of Martian's `offline/golden_comments/*.json`; it loads with Martian's own `load_golden_comments`.
+`honed export-gold --format martian [--split S] [--repo R] [--out DIR] [--important-only]` writes our gold issues as Martian Code Review Bench golden comments, one file per source repo (`<owner>__<name>.json`, default under `data/exports/martian/`), so a tool's reviews can be scored on our PRs with Martian's pipeline and compared with its leaderboard. Each file is a list of `{"pr_title", "url", "comments": [{"comment", "severity", "category"}]}`, the shape of Martian's `offline/golden_comments/*.json`; it loads with Martian's own `load_golden_comments`.
 
 What goes out: corpus PRs with at least one gold issue (Martian's scorer skips a PR without golden comments; benchmark PRs' answer keys are their benchmarks'), with the removal list and the redaction applied. The comment is our gold description as it is, without file or line, as Martian's own golden comments carry none, so matching ours is as hard as matching theirs.
 
@@ -150,6 +150,8 @@ Martian's scorer matches on a golden comment's text and keeps or drops it by cat
 | Important | High |
 | Nit | Low |
 | Pre-existing (outside the diff; Martian has no word for it) | Low |
+
+Our corpus keys are mostly Nits (Low) while Martian's are mostly bugs (Critical/High/Medium), so recall on our unfiltered keys is not directly comparable to Martian's leaderboard. `--important-only` exports only gold issues with severity Important (mapped to Martian High), making comparisons like for like; PRs whose gold issues are only Nits are left out as clean.
 
 | Our category | Martian tag | Martian profiles that count it |
 |---|---|---|

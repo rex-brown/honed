@@ -201,6 +201,11 @@ def _parser() -> argparse.ArgumentParser:
     gold.add_argument("--split", help="only this split (train, validation, test, or the dev split; default: all)")
     gold.add_argument("--repo", action="append", dest="repos", metavar="OWNER/NAME", help="only this repo")
     gold.add_argument("--out", type=Path, help="the output directory (default: [paths] exports/<format>)")
+    gold.add_argument(
+        "--important-only",
+        action="store_true",
+        help="only export gold issues with severity Important (mapped to Martian High)",
+    )
     gold.add_argument("--include-private", action="store_true",
                       help="maintainers only: also export the test-private split's gold (left out by "
                       "default)")  # fmt: skip
