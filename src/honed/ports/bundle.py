@@ -23,8 +23,9 @@ from honed.core.improve import PolicyRecord
 from honed.core.types import Compare, GoldSet, HarvestedPR, JudgedLabel, Judgment, PRKey
 from honed.ports.call_store import CachedCall
 
-BUNDLE_SCHEMA = 2  # the record format; a bundle with a newer one is refused. 2: attribution, stripped text, the
-# release fields of the manifest (schema 1 bundles still import)
+BUNDLE_SCHEMA = 3  # the record format; a bundle with a newer one is refused. 2: attribution, stripped text, the
+# release fields of the manifest. 3: each cached answer's PR ties (schema 1 and 2 bundles still import, their answers
+# untied)
 
 
 class BundleError(ValueError):

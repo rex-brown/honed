@@ -35,7 +35,7 @@ class LedgerEntry:
 @dataclass(frozen=True)
 class CachedCall:
     """One call-cache row as it is stored (a bundle carries the judge's): the key's parts and digest, the answer
-    and its usage. No prompt text: only hashes of it."""
+    and its usage, and the PRs it was asked for. No prompt text: only hashes of it."""
 
     key: str  # CallKey digest
     model: str
@@ -56,6 +56,9 @@ class CachedCall:
     cost_usd: float
     duration_s: float
     created_at: str
+    # The PRs the answer was asked for (`owner/name#N`): from the usage ledger and from the bundles it was imported
+    # in. What lets a removal or the test-private exclusion reach an imported answer, which has no ledger rows.
+    prs: tuple[str, ...] = ()
 
 
 class CallStore(Protocol):
@@ -64,11 +67,12 @@ class CallStore(Protocol):
     def put(self, key: CallKey, call: LLMCall, result: LLMResult) -> None: ...
 
     def cached(self, models: Collection[str]) -> list[CachedCall]:
-        """The cache rows of these models, oldest first."""
+        """The cache rows of these models, oldest first, each with its PR ties (its own and its ledger rows')."""
         ...
 
     def add_cached(self, entry: CachedCall) -> bool:
-        """Add a row unless its key is already cached (the local answer stays); True when added."""
+        """Add a row unless its key is already cached (the local answer stays); True when added. Its PR ties are
+        merged either way: an equal key is an identical prompt, so the PRs it was asked for elsewhere are its too."""
         ...
 
     def record(self, entry: LedgerEntry) -> None: ...

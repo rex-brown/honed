@@ -163,6 +163,9 @@ def _export(settings: config.Settings, args: argparse.Namespace) -> int:
     else:
         print(f"test-private: left out ({report.private_prs} PRs and {report.private_answers} judge answers; "
               "`--include-private` keeps them, for maintainers)")  # fmt: skip
+    if report.untied_answers:
+        print(f"untied judge answers: {report.untied_answers} carry no PR (imported from a bundle older than schema "
+              "3); a removal or the test-private exclusion can't reach them")  # fmt: skip
     print(f"comment text: {manifest.comment_text}"
           + (f" ({report.stripped_texts} texts left out; `honed rehydrate --comments` refetches them)"
              if manifest.comment_text == "stripped" else " (with attribution and text hashes)"))  # fmt: skip

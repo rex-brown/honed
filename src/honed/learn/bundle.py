@@ -6,12 +6,12 @@ the splits, escaped defects, the decision log, policy versions, benchmark record
 and context packs are not exported; later review rounds keep only their diff's file list and merge base.
 
 Before anything is written, the removal list (`core.removals`, `yardstick/removals.json`) takes out the listed PRs
-and the review threads that hold a listed comment, with everything derived from them (their judge answers too, as
-far as the usage ledger ties them to a PR); a guard refuses any record that would still carry one. Quoted text then
-goes through `learn/bundle_text.py`: the secrets and personal-data scan, attribution with a text hash, and with
-`--strip-comments` the text left out. The manifest records the dataset version, the judge (model, effort, prompt
-hashes), the license split, the redaction rules and counts, and the removals applied; the export report lists every
-redaction and removal by location.
+and the review threads that hold a listed comment, with everything derived from them (their judge answers too, by
+the PRs each answer was asked for: its usage ledger rows and the bundles it was imported in); a guard refuses any
+record that would still carry one. Quoted text then goes through `learn/bundle_text.py`: the secrets and
+personal-data scan, attribution with a text hash, and with `--strip-comments` the text left out. The manifest records
+the dataset version, the judge (model, effort, prompt hashes), the license split, the redaction rules and counts, and
+the removals applied; the export report lists every redaction and removal by location.
 
 Import is idempotent: a PR already in the store is kept as it is (it has its code), judgments, labels and gold are
 replaced by key, decision-log rows already present are skipped, cached answers already cached are kept, and every
@@ -29,7 +29,7 @@ from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 
 from honed.core import marks, redaction, removals
-from honed.core.removals import Applied, Removals
+from honed.core.removals import Applied, Removals, RemovalsError
 from honed.core.types import Compare, HarvestedPR, PRFact, PRKey
 from honed.learn import splits
 from honed.learn.bundle_text import ExportReport, TextOptions, TextPolicy
@@ -147,9 +147,22 @@ def _pr_of(record: Record) -> PRKey | None:
     return None
 
 
+def _listed_tie(prs: Iterable[str], removed: Removals) -> str | None:
+    """The first of a cached answer's PR ties that the removal list names, else None. A tie that doesn't parse as
+    `owner/name#N` names no PR."""
+    for ref in prs:
+        try:
+            tied = removals.parse_pr(ref)
+        except RemovalsError:
+            continue
+        if removed.removes_pr(tied):
+            return ref
+    return None
+
+
 class _Refusing:
-    """The bundle writer behind a last check: a record of a removed PR, or a PR record still holding a removed
-    comment, stops the export (`BundleError`) before it can reach the file."""
+    """The bundle writer behind a last check: a record of a removed PR, a PR record still holding a removed comment,
+    or a judge answer tied to a removed PR stops the export (`BundleError`) before it can reach the file."""
 
     def __init__(self, sink: BundleWriter, removed: Removals) -> None:
         self._sink = sink
@@ -163,19 +176,15 @@ class _Refusing:
             held = {c.id for t in record.item.pr.threads for c in t.comments} & self._removed.comments
             if held:
                 raise BundleError(f"refusing to export {key}: it holds removed comments {sorted(held)}")
+        if isinstance(record, CachedAnswerRecord):
+            ref = _listed_tie(record.entry.prs, self._removed)
+            if ref is not None:
+                raise BundleError(f"refusing to export cached answer {record.entry.key[:16]}: it is tied to {ref}, "
+                                  "on the removal list")  # fmt: skip
         self._sink.write(record)
 
     def close(self, manifest: Manifest) -> Manifest:
         return self._sink.close(manifest)
-
-
-def _ledger_prs(calls: CallStore) -> dict[str, set[str]]:
-    """Cache key -> the PRs the usage ledger ties it to."""
-    out: dict[str, set[str]] = {}
-    for entry in calls.ledger():
-        if entry.pr:
-            out.setdefault(entry.key, set()).add(entry.pr)
-    return out
 
 
 def export(store: Store, labels: LabelStore, evals: EvalStore, improve: ImproveStore, calls: CallStore,
@@ -272,15 +281,16 @@ class _Export:
             self.benchmark_counts[record.benchmark] += 1
 
     def cached_answers(self) -> None:
-        """The judge's cached answers, redacted, but for those the usage ledger ties to a PR a removal touched or
-        to a test-private PR left out."""
+        """The judge's cached answers, redacted, with their PR ties (`CachedCall.prs`), but for those tied to a PR a
+        removal touched or lists (whether or not the store has it) or to a test-private PR left out. An answer with
+        no tie is exported and counted."""
         private = {str(k) for k in self.held_out}
-        tied = _ledger_prs(self.calls) if self.touched or private else {}
         for entry in self.calls.cached([self.o.judge_model]):
-            prs = tied.get(entry.key, set())
+            prs = set(entry.prs)
             if prs & private:
                 self.report.private_answers += 1
-            elif not prs & self.touched:
+            elif not prs & self.touched and _listed_tie(entry.prs, self.removed) is None:
+                self.report.untied_answers += not prs
                 self.sink.write(CachedAnswerRecord(self.text.cached(entry)))
 
     def manifest(self, keys: Sequence[PRKey], license_of: Callable[[str], str | None]) -> Manifest:

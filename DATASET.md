@@ -17,7 +17,7 @@ One compressed JSON Lines file (`honed bundle export FILE`: `.jsonl.gz`, or `.js
 | `round_diff` | A later review round's diff: its file list and merge base, without patches. |
 | `decision`, `policy_version` | The improve loop's decision log, and every promoted policy with its full content. |
 | `benchmark` | A public benchmark's own record of an imported PR: its golden comments, and the comments its annotators rejected. |
-| `cached_answer` | The judge model's cached answers: the cache key's hashes (never the prompt text), the answer and its usage, so re-scoring reproduces the judge's verdicts without asking it again. |
+| `cached_answer` | The judge model's cached answers: the cache key's hashes (never the prompt text), the answer and its usage, and the PRs it was asked for, so re-scoring reproduces the judge's verdicts without asking it again. |
 
 ### What it leaves out
 
@@ -32,7 +32,7 @@ One compressed JSON Lines file (`honed bundle export FILE`: `.jsonl.gz`, or `.js
 | Field | Meaning |
 |---|---|
 | `dataset_version` | The release (`[dataset] version`). A removal is followed by a patch release. |
-| `bundle_schema`, `store_schema` | The record format (2: attribution, stripped text and these release fields) and the store it came from. A bundle with a newer schema is refused; schema 1 bundles still import. |
+| `bundle_schema`, `store_schema` | The record format (2: attribution, stripped text and these release fields; 3: each cached answer's PR ties) and the store it came from. A bundle with a newer schema is refused; schema 1 and 2 bundles still import, their cached answers untied. |
 | `judge` | The fixed judge: `model` (`claude-fable-5-1`), `effort` (`medium`), `prompts` (each `yardstick/prompts/*.md` file's SHA-256) and `fingerprint` (`<model>:<hash>` of the model, effort and the evaluation prompts; stored evaluation runs name their judge the same way). |
 | `licenses` | The license split: `annotations` (`CC-BY-4.0`), `comment_text`, `benchmarks`, `software` (below). |
 | `comment_text` | `full`, or `stripped` (text left out, hashes kept). |
@@ -64,7 +64,7 @@ The parts and their terms:
 
 The newest fifth of the corpus (by PR creation date, per language) is the test split. `honed splits --assign` stores every PR's split and halves the test split, per language, into `test-public` and `test-private` (`[eval] test_private_share`, 0.5): the PRs in time order are cut into consecutive pairs, and one PR of each pair, chosen by a fixed hash of its key, is held out, so both halves cover the same weeks. `test-private` is the maintainers' holdout (`ROADMAP.md`, governance): it is scored on every promotion so that many contributors tuning against the public validation split can't overfit it unnoticed.
 
-- `honed bundle export` leaves it out by default: its PRs, their threads, judgments, labels, gold and round gold, their escaped defects, their split records, and every cached judge answer the usage ledger ties to one of them. The manifest says so (`test_private`), and the export report counts them without naming them. `honed export-gold` leaves its gold out the same way.
+- `honed bundle export` leaves it out by default: its PRs, their threads, judgments, labels, gold and round gold, their escaped defects, their split records, and every cached judge answer tied to one of them. The manifest says so (`test_private`), and the export report counts them without naming them. `honed export-gold` leaves its gold out the same way.
 - Maintainers keep it with `--include-private` on either command. Such a bundle is for moving the holdout between maintainers, and is never published.
 - What it does not protect against: the private PRs are public GitHub pull requests, inside the published harvest window and repos, so anyone who harvests the same window has their review threads. What stays private is which PRs are held out, and the judge's labels and gold on them. It guards against accidental overfitting, not a determined one; the remedy for the latter is refreshing it with PRs newer than anything published.
 - A PR's split never moves once stored: re-running `splits --assign` assigns only PRs without one.
@@ -111,9 +111,9 @@ Every later export (`honed bundle export`, `honed export-gold`) honors the list:
 
 - A listed **PR** goes entirely: its record, judgments, labels, gold, round data, split, escaped defects and benchmark record.
 - A listed **comment** takes its whole review thread with it, because the replies answer it and the thread's labels, judgments and gold issues were made from it: the thread, its outcome, its judgments and judged labels, and every gold issue built from it.
-- The judge's cached answers that the usage ledger ties to an affected PR are dropped too (answers imported from another bundle have no ledger rows and can't be tied).
+- The judge's cached answers tied to an affected PR are dropped too. Each answer carries the PRs it was asked for (from the usage ledger, and from the bundle it was imported from, schema 3 on), so a removal reaches answers imported from another bundle too; answers imported from a bundle older than schema 3 carry none and can't be tied, and the export report counts them (`untied_answers`).
 - Other PRs keep their splits.
-- A last check refuses to write any record that still carries a listed PR or comment, and the manifest's `removals` counts what was applied.
+- A last check refuses to write any record that still carries a listed PR or comment (a cached answer tied to a listed PR included), and the manifest's `removals` counts what was applied.
 
 The maintainers then publish a patch release (bump `[dataset] version`) and replace the earlier release's asset. Copies already downloaded can't be recalled.
 
