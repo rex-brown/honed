@@ -1,5 +1,11 @@
 """CallStore on SQLite: the LLM call cache and the usage ledger, in the dataset's SQLite file (own tables).
 
+A cached answer's PR ties (the PRs it was asked for) live in their own table, `llm_cache_prs`: one row per (key, PR),
+added by `put` for the call's PR and merged by `add_cached` from an imported answer's. A table of its own, not a
+column of `llm_cache`, because the call store has no migrations (its tables are outside the store schema) and older
+checkouts write `llm_cache` positionally. `cached` reports each answer's ties together with the PRs of its usage
+ledger rows, which cover answers cached before the table existed and cache hits made for other PRs.
+
 Safe to share between the job runner's worker threads: one connection, serialized by a lock.
 """
 
@@ -27,6 +33,7 @@ CREATE TABLE IF NOT EXISTS llm_ledger (
   input_tokens INTEGER, output_tokens INTEGER, cache_read_tokens INTEGER, cache_write_tokens INTEGER,
   cost_usd REAL, duration_s REAL, error TEXT);
 CREATE INDEX IF NOT EXISTS llm_ledger_run ON llm_ledger (run_id);
+CREATE TABLE IF NOT EXISTS llm_cache_prs (key TEXT NOT NULL, pr TEXT NOT NULL, PRIMARY KEY (key, pr));
 """
 
 
@@ -75,15 +82,24 @@ class SqliteCallStore:
                  result.stop_reason, result.model, u.input_tokens, u.output_tokens, u.cache_read_tokens,
                  u.cache_write_tokens, u.cost_usd, u.duration_s, dt.datetime.now(dt.UTC).isoformat()),
             )  # fmt: skip
+            if call.pr:
+                self._db.execute("INSERT OR IGNORE INTO llm_cache_prs VALUES (?,?)", (key.digest, call.pr))
 
     def cached(self, models: Collection[str]) -> list[CachedCall]:
         wanted = sorted(set(models))
         if not wanted:
             return []
         marks = ",".join("?" * len(wanted))
+        keys = f"SELECT key FROM llm_cache WHERE model IN ({marks})"
         with self._lock:
             rows = self._db.execute(f"SELECT * FROM llm_cache WHERE model IN ({marks}) ORDER BY created_at, key",
                                     wanted).fetchall()  # fmt: skip
+            ties = self._db.execute(f"SELECT key, pr FROM llm_cache_prs WHERE key IN ({keys}) UNION SELECT key, pr"
+                                    f" FROM llm_ledger WHERE pr IS NOT NULL AND pr != '' AND key IN ({keys})",
+                                    [*wanted, *wanted]).fetchall()  # fmt: skip
+        prs: dict[str, set[str]] = {}
+        for t in ties:
+            prs.setdefault(t["key"], set()).add(t["pr"])
         return [
             CachedCall(
                 key=r["key"], model=r["model"], effort=r["effort"] or "", sample=r["sample"],
@@ -93,6 +109,7 @@ class SqliteCallStore:
                 input_tokens=r["input_tokens"] or 0, output_tokens=r["output_tokens"] or 0,
                 cache_read_tokens=r["cache_read_tokens"] or 0, cache_write_tokens=r["cache_write_tokens"] or 0,
                 cost_usd=r["cost_usd"] or 0.0, duration_s=r["duration_s"] or 0.0, created_at=r["created_at"],
+                prs=tuple(sorted(prs.get(r["key"], ()))),
             )
             for r in rows
         ]  # fmt: skip
@@ -106,7 +123,11 @@ class SqliteCallStore:
                  None if e.data is None else json.dumps(e.data), e.stop_reason, e.answered_by, e.input_tokens,
                  e.output_tokens, e.cache_read_tokens, e.cache_write_tokens, e.cost_usd, e.duration_s, e.created_at),
             )  # fmt: skip
-            return cursor.rowcount > 0
+            added = cursor.rowcount > 0
+            # An equal key is an identical prompt: the PRs it was asked for elsewhere are its sources here too.
+            self._db.executemany("INSERT OR IGNORE INTO llm_cache_prs VALUES (?,?)",
+                                 [(e.key, pr) for pr in e.prs if pr])  # fmt: skip
+            return added
 
     def record(self, entry: LedgerEntry) -> None:
         with self._lock, self._db:

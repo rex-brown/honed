@@ -48,6 +48,9 @@ class ExportReport:
     stripped_texts: int = 0
     private_prs: int = 0  # test-private PRs left out (counted, never listed: the holdout stays unnamed)
     private_answers: int = 0  # judge answers left out with them
+    # Judge answers exported with no PR tie: only answers imported from a bundle older than schema 3 can have none,
+    # since every judge call names its PR. Neither a removal nor the test-private exclusion can reach them.
+    untied_answers: int = 0
 
     @property
     def redaction_counts(self) -> dict[str, int]:

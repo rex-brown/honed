@@ -18,6 +18,7 @@ from honed import cli
 from honed.adapters.blobs import BlobStore
 from honed.adapters.bundle_file import BundleFileReader, BundleFileWriter
 from honed.adapters.call_store import SqliteCallStore
+from honed.adapters.codec import from_json, to_json
 from honed.adapters.git_reader import GitReader, parse_diff
 from honed.adapters.sqlite_store import SCHEMA_VERSION, SqliteStore
 from honed.core.evals import Decision
@@ -36,7 +37,7 @@ from honed.core.types import (
 )
 from honed.learn import bundle
 from honed.learn.rehydrate import Rehydrator
-from honed.ports.bundle import BundleError
+from honed.ports.bundle import BundleError, CachedAnswerRecord
 from honed.ports.llm import LLMCall, LLMResult, Usage
 from reviewkit import ROOT, SETTINGS, STORE
 
@@ -74,7 +75,7 @@ def test_export_holds_no_code_and_an_import_into_an_empty_store_matches_it(tmp_p
     store, calls = populated(tmp_path / "src")
     manifest = export_to(tmp_path / "b.jsonl.gz", store, calls)
     assert manifest.counts["pr"] == 3 and manifest.counts["cached_answer"] == 1  # only the judge's answers
-    assert manifest.repos[0].repo == "o/r" and manifest.repos[0].license == "MIT" and manifest.bundle_schema == 2
+    assert manifest.repos[0].repo == "o/r" and manifest.repos[0].license == "MIT" and manifest.bundle_schema == 3
     lines = gzip.decompress((tmp_path / "b.jsonl.gz").read_bytes()).decode().splitlines()
     assert json.loads(lines[0])["kind"] == "manifest" and len(lines) == 1 + sum(manifest.counts.values())
     prs = [json.loads(line) for line in lines if json.loads(line)["kind"] == "pr"]
@@ -121,6 +122,18 @@ def test_a_newer_bundle_schema_is_refused(tmp_path):
         BundleFileReader(tmp_path / "plain.jsonl")
     with pytest.raises(BundleError, match=r"\.jsonl\.gz"):
         BundleFileWriter(tmp_path / "x.json")
+
+
+def test_a_cached_answer_from_an_older_bundle_decodes_untied_and_ties_round_trip(tmp_path):
+    store, calls = populated(tmp_path)
+    (entry,) = calls.cached([JUDGE])
+    tied = CachedAnswerRecord(replace(entry, prs=("o/r#1", "o/r#3")))
+    assert from_json(CachedAnswerRecord, to_json(tied)) == tied
+    older = to_json(tied)
+    del older["entry"]["prs"]  # a schema 2 bundle's record
+    assert from_json(CachedAnswerRecord, older).entry.prs == ()
+    store.close()
+    calls.close()
 
 
 @pytest.mark.skipif(sys.version_info < (3, 14), reason="compression.zstd is in Python 3.14+")

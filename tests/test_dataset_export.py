@@ -136,7 +136,7 @@ def test_every_quoted_text_carries_attribution_and_a_hash_of_what_was_exported(t
                for r in lines if r["kind"] == "pr")  # fmt: skip
 
     m = result.manifest
-    assert (m.bundle_schema, m.dataset_version, m.comment_text, m.redaction_rules) == (2, "9.9.9", "full",
+    assert (m.bundle_schema, m.dataset_version, m.comment_text, m.redaction_rules) == (3, "9.9.9", "full",
                                                                                        RULES_VERSION)  # fmt: skip
     assert m.judge == judge_version() and m.licenses.annotations == "CC-BY-4.0"
     assert "not licensed by this project" in m.licenses.comment_text and "Apache-2.0" in m.licenses.software
@@ -238,7 +238,62 @@ def test_the_export_refuses_a_record_that_still_carries_a_removed_item(tmp_path)
     guard = bundle._Refusing(BundleFileWriter(tmp_path / "y.jsonl.gz"), Removals(prs=frozenset({P1})))
     with pytest.raises(BundleError, match="on the removal list"):
         guard.write(bundle.JudgmentRecord(store.judgments(P1)[0]))
+    tied = {e.text: e for e in calls.cached([JUDGE])}
+    with pytest.raises(BundleError, match="on the removal list"):
+        guard.write(bundle.CachedAnswerRecord(tied["answer for gold 1"]))
+    guard.write(bundle.CachedAnswerRecord(replace(tied["answer for untied"], prs=("not a PR",))))  # nothing named
     close(store, calls)
+
+
+# ---- an imported store's answers ------------------------------------------------------------------------------
+
+
+def _imported(tmp_path: Path, **kwargs) -> tuple[SqliteStore, SqliteCallStore]:
+    """`store_with`'s PRs 1, 3, 4 (and the clean 2) exported and imported into an empty store: its judge answers
+    keep their PR ties though the store has no usage ledger."""
+    store, calls = store_with(tmp_path / "src", humans=("ann", "bob", "cy"))
+    if kwargs.get("include_private"):
+        store.set_splits({P1: "train", PRKey("o/r", 2): "train", P3: "test-private", P4: "test-public"})
+    export(tmp_path / "first.jsonl.gz", store, calls, **kwargs)
+    close(store, calls)
+    dst, dst_calls = empty_store(tmp_path / "dst")
+    bundle.import_bundle(BundleFileReader(tmp_path / "first.jsonl.gz"), dst, dst, dst, dst, dst_calls)
+    assert dst_calls.ledger() == []
+    assert {e.text: e.prs for e in dst_calls.cached([JUDGE])} == {
+        "answer for gold 1": ("o/r#1",), "answer for gold 3": ("o/r#3",), "answer for untied": ()}  # fmt: skip
+    return dst, dst_calls
+
+
+def test_a_removal_reaches_the_judge_answers_of_an_imported_store(tmp_path):
+    dst, dst_calls = _imported(tmp_path)
+    result = export(tmp_path / "b.jsonl.gz", dst, dst_calls, removals=Removals(comments=frozenset({"t3-0"})))
+    raw = gzip.decompress((tmp_path / "b.jsonl.gz").read_bytes()).decode()
+    assert '"t3-0"' not in raw and '"t3"' not in raw and "answer for gold 3" not in raw  # no trace of the thread
+    answers = sorted(r["entry"]["text"] for r in records(tmp_path / "b.jsonl.gz") if r["kind"] == "cached_answer")
+    assert answers == ["answer for gold 1", "answer for untied"] and result.report.untied_answers == 1
+
+    export(tmp_path / "p.jsonl.gz", dst, dst_calls, removals=Removals(prs=frozenset({P1})))
+    answers = sorted(r["entry"]["text"] for r in records(tmp_path / "p.jsonl.gz") if r["kind"] == "cached_answer")
+    assert answers == ["answer for gold 3", "answer for untied"]  # a removed PR's imported answer is out too
+
+    # An answer tied to a listed PR the store has no record of is skipped, not refused by the guard.
+    (entry,) = [e for e in dst_calls.cached([JUDGE]) if e.text == "answer for untied"]
+    assert dst_calls.add_cached(replace(entry, key="k" * 64, text="answer for an absent PR", prs=("o/r#99",)))
+    absent = export(tmp_path / "a.jsonl.gz", dst, dst_calls, removals=Removals(prs=frozenset({PRKey("o/r", 99)})))
+    answers = sorted(r["entry"]["text"] for r in records(tmp_path / "a.jsonl.gz") if r["kind"] == "cached_answer")
+    assert answers == ["answer for gold 1", "answer for gold 3", "answer for untied"]
+    assert "answer for an absent PR" not in gzip.decompress((tmp_path / "a.jsonl.gz").read_bytes()).decode()
+    assert absent.report.removed_prs == [] and absent.manifest.removals["prs"] == 0  # listed, not in the store
+    close(dst, dst_calls)
+
+
+def test_the_test_private_exclusion_reaches_the_judge_answers_of_an_imported_store(tmp_path):
+    dst, dst_calls = _imported(tmp_path, include_private=True)  # a maintainers' bundle, re-exported without it
+    result = export(tmp_path / "b.jsonl.gz", dst, dst_calls)
+    assert (result.report.private_prs, result.report.private_answers) == (1, 1)
+    answers = sorted(r["entry"]["text"] for r in records(tmp_path / "b.jsonl.gz") if r["kind"] == "cached_answer")
+    assert answers == ["answer for gold 1", "answer for untied"]
+    close(dst, dst_calls)
 
 
 def test_the_removal_list_file(tmp_path):
@@ -336,9 +391,10 @@ def test_the_cli_exports_with_a_report_and_the_yardstick_judge(tmp_path, capsys)
     assert cli.main([*config, "bundle", "export", str(out), "--no-licenses", "--strip-comments"]) == 0
     printed = capsys.readouterr().out
     assert "redactions (rules" in printed and "comment text: stripped" in printed
-    assert "removals: listed_prs 0" in printed
+    assert "removals: listed_prs 0" in printed and "untied judge answers: 1 carry no PR" in printed
     report = json.loads((tmp_path / "honed-dataset.report.json").read_text())
     assert report["redaction_counts"]["aws_access_key"] == 1 and report["comment_text"] == "stripped"
+    assert report["untied_answers"] == 1
     assert SECRET_KEY not in json.dumps(report)
     manifest = BundleFileReader(out).manifest()
     prompts = {n: hashlib.sha256((ROOT / "yardstick" / "prompts" / f"{n}.md").read_bytes()).hexdigest()

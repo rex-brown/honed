@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from dataclasses import replace
 
 import pytest
 
@@ -77,6 +78,21 @@ def test_stop_run_errors_pass_through_unrecorded(calls):
     with pytest.raises(UsageLimitReached):
         CachedLLM(ScriptedLLM(limited), calls, run_id="r1").complete(mk())
     assert calls.ledger() == []
+
+
+def test_a_cached_answer_carries_the_prs_it_was_asked_for(calls):
+    llm = CachedLLM(ScriptedLLM(), calls, run_id="r1")
+    llm.complete(mk("a", pr="o/r#1"))
+    llm.complete(mk("a", pr="o/r#2"))  # a cache hit for another PR (the key has no PR): tied by its ledger row
+    CachedLLM(ScriptedLLM(), calls, run_id="r1").complete(mk("b", pr=None))  # no PR: no tie
+    first, second = calls.cached(["m"])
+    assert (first.key, first.prs) == (mk("a").key.digest, ("o/r#1", "o/r#2")) and second.prs == ()
+
+    # An imported answer already cached keeps the local one and merges its ties; a new one brings its own.
+    assert not calls.add_cached(replace(second, text="theirs", prs=("o/r#9",)))
+    assert calls.get(mk("b").key).text == second.text and calls.cached(["m"])[1].prs == ("o/r#9",)
+    assert calls.add_cached(replace(second, key="k" * 64, created_at="9999", prs=("o/r#7", "o/r#8")))
+    assert calls.cached(["m"])[2].prs == ("o/r#7", "o/r#8")
 
 
 def test_replay_answers_only_from_the_cache(calls):
