@@ -10,7 +10,7 @@ Status: research software. The pipeline, evaluation and improve loop work end to
 
 ## Install
 
-Needs Python 3.12 or later, [uv](https://docs.astral.sh/uv/), and git. Harvesting new pull requests also needs the GitHub command-line tool `gh`, logged in (`gh auth login`).
+Needs Python 3.12 or later (development uses 3.14, named in `.python-version`), [uv](https://docs.astral.sh/uv/) 0.13.5 or a later 0.13 release (`[tool.uv] required-version` refuses any other), and git. Harvesting new pull requests also needs the GitHub command-line tool `gh`, logged in (`gh auth login`).
 
 ```sh
 uv sync                  # the package and its development tools
