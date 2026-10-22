@@ -22,12 +22,11 @@ local = [
 [project.scripts]
 honed = "honed.cli:main"
 
+# The backend inside the uv binary, for the series `[tool.uv] required-version` allows: building the project fetches
+# nothing from outside uv.lock (ARCHITECTURE.md section 8, Dependencies; tests/test_packaging.py).
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/honed"]
+requires = ["uv_build>=0.13.5,<0.14"]
+build-backend = "uv_build"
 
 [dependency-groups]
 dev = ["pytest", "ruff", "import-linter"]
