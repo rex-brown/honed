@@ -32,6 +32,13 @@ packages = ["src/honed"]
 [dependency-groups]
 dev = ["pytest", "ruff", "import-linter"]
 
+# One uv series for development and CI (ARCHITECTURE.md section 8, Dependencies): CI installs exactly the release this
+# range starts at (setup-uv's `version` in `.github/workflows/ci.yml`). `.python-version` names the interpreter;
+# without it uv takes whichever compatible one it finds first, and on a machine with none uv 0.13 downloads Python
+# 3.15, which CI never runs.
+[tool.uv]
+required-version = ">=0.13.5,<0.14"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["tests"]
